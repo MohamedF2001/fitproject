@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#111316;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-primary-container": "#556d00", "tertiary": "#ffffff", "on-secondary": "#00354a", "inverse-primary": "#506600", "on-tertiary-fixed-variant": "#39485a", "surface-container-high": "#282a2d", "on-tertiary-fixed": "#0d1c2d", "on-primary": "#283500", "secondary": "#7bd0ff", "surface-container-low": "#1a1c1f", "on-error": "#690005", "background": "#111316", "primary-fixed": "#c3f400", "on-error-container": "#ffdad6", "tertiary-fixed": "#d4e4fa", "on-secondary-fixed-variant": "#004c69", "surface": "#111316", "outline-variant": "#444933", "on-tertiary": "#233143", "primary-fixed-dim": "#abd600", "primary-container": "#c3f400", "on-secondary-fixed": "#001e2c", "surface-bright": "#37393d", "on-background": "#e2e2e6", "surface-container": "#1e2023", "primary": "#ffffff", "outline": "#8e9379", "error": "#ffb4ab", "on-tertiary-container": "#576679", "tertiary-container": "#d4e4fa", "surface-container-lowest": "#0c0e11", "secondary-fixed-dim": "#7bd0ff", "on-secondary-container": "#00374d", "on-surface-variant": "#c4c9ac", "secondary-container": "#00a6e0", "inverse-surface": "#e2e2e6", "tertiary-fixed-dim": "#b9c8de", "error-container": "#93000a", "on-primary-fixed": "#161e00", "on-surface": "#e2e2e6", "inverse-on-surface": "#2f3034", "surface-container-highest": "#333538", "on-primary-fixed-variant": "#3c4d00", "surface-tint": "#abd600", "secondary-fixed": "#c4e7ff", "surface-variant": "#333538", "surface-dim": "#111316" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xl": "2rem", "space-sm": "0.5rem", "gutter": "1rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "margin": "1.25rem" }, fontFamily: { "body-lg": ["Plus Jakarta Sans"], "label-mono-stat": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "metric-display-mobile": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "metric-display": ["Plus Jakarta Sans"] }, fontSize: { "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }], "label-mono-stat": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400" }], "metric-display-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "headline-xl": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "metric-display": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md text-body-md min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><button aria-label="Retour" class="w-11 h-11 flex items-center justify-center rounded-full bg-surface-container-high text-on-surface hover:text-primary transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[20px]">arrow_back_ios_new</span></button><h1 class="font-headline-md text-headline-md tracking-tight uppercase text-on-surface">Détails Exercice</h1></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="flex-1 w-full bg-surface pt-16 pb-safe px-margin flex flex-col relative"><div class="flex flex-col w-full pb-10 space-y-space-lg">
+<!-- Search & Guest Mode Banner -->
+<div class="flex flex-col space-y-space-sm pt-2">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-primary-fixed shadow-[0_0_8px_rgba(195,244,0,0.8)]"></span>
+<span class="font-label-mono-stat text-label-mono-stat uppercase text-on-surface-variant tracking-wider">Accès Libre · 114 Mouvements</span>
+</div>
+<div class="bg-surface-container-high px-space-sm py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-primary-fixed text-[14px]">public</span>
+<span class="font-label-mono-stat text-label-mono-stat text-on-surface">Catalogue Public</span>
+</div>
+</div>
+<!-- Search Input Bar -->
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-space-md flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full h-12 pl-11 pr-10 bg-surface-container-low rounded-xl text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md focus:outline-none focus:bg-surface-container transition-all" id="exercise-search-input" placeholder="Rechercher un exercice, un muscle..." type="text"/>
+<div class="absolute inset-y-0 right-0 pr-space-md flex items-center">
+<button aria-label="Effacer" class="text-on-surface-variant hover:text-on-surface hidden transition-opacity" id="clear-search-btn">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<!-- Filter Chips Horizontal Scroll -->
+<div class="flex gap-space-xs overflow-x-auto no-scrollbar py-1 -mx-margin px-margin">
+<button class="filter-chip active shrink-0 px-space-md h-8 rounded-lg bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-semibold transition-all">Tous</button>
+<button class="filter-chip shrink-0 px-space-md h-8 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright transition-all">Force</button>
+<button class="filter-chip shrink-0 px-space-md h-8 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright transition-all">Isolation</button>
+<button class="filter-chip shrink-0 px-space-md h-8 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright transition-all">Poids du corps / Gainage</button>
+<button class="filter-chip shrink-0 px-space-md h-8 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright transition-all">Haltères</button>
+<button class="filter-chip shrink-0 px-space-md h-8 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright transition-all">Sans matériel</button>
+</div>
+</div>
+<!-- Detailed Workout Card (Focus Exercise: Développé militaire avec haltères) -->
+<section class="flex flex-col bg-surface-container-low rounded-2xl overflow-hidden shadow-xl shadow-black/40">
+<!-- Header of Detail Card -->
+<div class="p-space-lg space-y-space-md bg-gradient-to-b from-surface-container-high/60 to-surface-container-low">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs">
+<span class="bg-primary-fixed/20 text-primary-fixed px-2 py-0.5 rounded font-label-mono-stat text-label-mono-stat uppercase tracking-wider">Fiche Active</span>
+<span class="text-on-surface-variant font-label-mono-stat text-label-mono-stat uppercase">REF: EX-EP04</span>
+</div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Développé militaire avec haltères</h2>
+</div>
+<button aria-label="Sauvegarder" class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary-fixed transition-colors shrink-0" id="favorite-btn">
+<span class="material-symbols-outlined text-[20px]" id="fav-icon">bookmark_border</span>
+</button>
+</div>
+<!-- Badges Cluster -->
+<div class="flex flex-wrap gap-space-xs">
+<span class="h-7 px-space-sm bg-surface-container-highest rounded flex items-center gap-1 font-label-mono-stat text-label-mono-stat text-on-surface uppercase">
+<span class="material-symbols-outlined text-primary-fixed text-[14px]">fitness_center</span>
+          Épaules
+        </span>
+<span class="h-7 px-space-sm bg-surface-container-highest rounded flex items-center gap-1 font-label-mono-stat text-label-mono-stat text-on-surface uppercase">
+<span class="material-symbols-outlined text-secondary text-[14px]">bolt</span>
+          Force &amp; Hypertrophie
+        </span>
+<span class="h-7 px-space-sm bg-surface-container-highest rounded flex items-center gap-1 font-label-mono-stat text-label-mono-stat text-on-surface uppercase">
+<span class="material-symbols-outlined text-on-surface-variant text-[14px]">inventory_2</span>
+          Matériel : Haltères
+        </span>
+</div>
+<!-- Anatomical Line-Art Vector Display -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-md flex flex-col items-center justify-center relative overflow-hidden">
+<div class="absolute top-space-sm left-space-sm font-label-mono-stat text-label-mono-stat uppercase text-on-surface-variant/70 tracking-widest flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>
+          Ciblage Musculaire
+        </div>
+<!-- Single-weight Technical Line-Art Anatomical Torso -->
+<svg class="w-full max-w-[260px] h-48 my-1" fill="none" viewbox="0 0 280 210" xmlns="http://www.w3.org/2000/svg">
+<!-- Ambient Glow for Deltoids -->
+<circle cx="82" cy="74" fill="#c3f400" fill-opacity="0.14" filter="blur(10px)" r="26"></circle>
+<circle cx="198" cy="74" fill="#c3f400" fill-opacity="0.14" filter="blur(10px)" r="26"></circle>
+<!-- Neutral Body Contours (Ghost Slates) -->
+<!-- Head / Neck -->
+<path d="M140 38 C148 38 152 46 152 54 C152 64 148 72 140 72 C132 72 128 64 128 54 C128 46 132 38 140 38 Z" stroke="#8e9379" stroke-dasharray="2 2" stroke-width="1.5"></path>
+<path d="M132 72 L130 94 M148 72 L150 94" stroke="#8e9379" stroke-width="1.5"></path>
+<!-- Trapezius Outline (Secondary) -->
+<path d="M130 80 L108 86 L102 96 M150 80 L172 86 L178 96" stroke="#d4e4fa" stroke-linecap="round" stroke-width="1.75"></path>
+<!-- Clavicles & Sternum -->
+<path d="M140 96 L112 92 M140 96 L168 92" stroke="#8e9379" stroke-linecap="round" stroke-width="1.5"></path>
+<path d="M140 96 L140 162" stroke="#444933" stroke-width="1.25"></path>
+<!-- Ribcage & Torso Frame -->
+<path d="M106 132 C114 138 126 142 140 142 C154 142 166 138 174 132" stroke="#444933" stroke-width="1.25"></path>
+<path d="M104 150 C114 156 126 160 140 160 C154 160 166 156 176 150" stroke="#444933" stroke-width="1.25"></path>
+<path d="M112 162 L116 198 L164 198 L168 162" stroke="#8e9379" stroke-width="1.5"></path>
+<!-- Chest / Pectorals -->
+<path d="M112 104 C120 114 136 116 140 116 C144 116 160 114 168 104" stroke="#8e9379" stroke-width="1.5"></path>
+<!-- Arms / Biceps / Forearms Neutral Wire -->
+<path d="M68 98 L56 142 M212 98 L224 142" stroke="#8e9379" stroke-linecap="round" stroke-width="1.5"></path>
+<!-- Dumbbells Representation in Overhead Transition -->
+<g stroke="#7bd0ff" stroke-linecap="round" stroke-width="1.75">
+<line x1="42" x2="62" y1="62" y2="62"></line>
+<rect fill="#1a1c1f" height="20" rx="1.5" width="6" x="36" y="52"></rect>
+<rect fill="#1a1c1f" height="20" rx="1.5" width="6" x="62" y="52"></rect>
+<line x1="218" x2="238" y1="62" y2="62"></line>
+<rect fill="#1a1c1f" height="20" rx="1.5" width="6" x="212" y="52"></rect>
+<rect fill="#1a1c1f" height="20" rx="1.5" width="6" x="238" y="52"></rect>
+</g>
+<!-- TARGET DELTOIDS (Volt #c3f400 Highlight Accent) -->
+<!-- Left Deltoid -->
+<path d="M104 88 C94 88 78 92 74 104 C70 116 76 128 84 130 C90 131 96 122 100 114 C104 105 106 94 104 88 Z" fill="#c3f400" fill-opacity="0.32" stroke="#c3f400" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M84 94 L88 122 M94 92 L94 116" stroke="#c3f400" stroke-linecap="round" stroke-width="1.2"></path>
+<!-- Right Deltoid -->
+<path d="M176 88 C186 88 202 92 206 104 C210 116 204 128 196 130 C190 131 184 122 180 114 C176 105 174 94 176 88 Z" fill="#c3f400" fill-opacity="0.32" stroke="#c3f400" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M196 94 L192 122 M186 92 L186 116" stroke="#c3f400" stroke-linecap="round" stroke-width="1.2"></path>
+</svg>
+<div class="flex items-center gap-space-md mt-1">
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-full bg-primary-fixed"></span>
+<span class="font-label-mono-stat text-label-mono-stat text-on-surface">Deltoïdes (Principal)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="font-label-mono-stat text-label-mono-stat text-on-surface-variant">Triceps &amp; Trapèzes</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Targeted Muscles Breakdown -->
+<div class="p-space-lg space-y-space-md">
+<div class="space-y-space-sm">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-fixed text-[20px]">target</span>
+          Muscles Sollicités
+        </h3>
+<!-- Muscle Progress Item 1 -->
+<div class="bg-surface-container p-space-md rounded-xl space-y-space-xs">
+<div class="flex justify-between items-center">
+<span class="font-label-lg text-label-lg font-bold text-on-surface">Deltoïdes antérieurs et moyens</span>
+<span class="font-label-mono-stat text-label-mono-stat text-primary-fixed font-extrabold uppercase">100% · Principal</span>
+</div>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary-fixed rounded-full w-full"></div>
+</div>
+</div>
+<!-- Muscle Progress Item 2 -->
+<div class="bg-surface-container p-space-md rounded-xl space-y-space-xs">
+<div class="flex justify-between items-center">
+<span class="font-label-lg text-label-lg text-on-surface">Triceps brachial &amp; Trapèzes sup.</span>
+<span class="font-label-mono-stat text-label-mono-stat text-secondary font-semibold uppercase">65% · Synergistes</span>
+</div>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full w-[65%]"></div>
+</div>
+</div>
+</div>
+<!-- Step by step instructions -->
+<div class="space-y-space-sm">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-fixed text-[20px]">format_list_numbered</span>
+          Exécution Étape par Étape
+        </h3>
+<div class="space-y-space-xs">
+<div class="flex gap-space-md p-space-md bg-surface-container rounded-xl items-start">
+<div class="w-7 h-7 rounded-full bg-primary-fixed text-on-primary-fixed font-bold font-label-md text-label-md flex items-center justify-center shrink-0">1</div>
+<div class="space-y-0.5">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">Posture de départ</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Assis ou debout, dos droit, buste bombé, haltères fermement maintenus à hauteur d'oreilles.</p>
+</div>
+</div>
+<div class="flex gap-space-md p-space-md bg-surface-container rounded-xl items-start">
+<div class="w-7 h-7 rounded-full bg-primary-fixed text-on-primary-fixed font-bold font-label-md text-label-md flex items-center justify-center shrink-0">2</div>
+<div class="space-y-0.5">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">Poussée verticale</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Développez vers le haut selon une trajectoire fluide sans verrouiller brutalement les coudes au sommet.</p>
+</div>
+</div>
+<div class="flex gap-space-md p-space-md bg-surface-container rounded-xl items-start">
+<div class="w-7 h-7 rounded-full bg-primary-fixed text-on-primary-fixed font-bold font-label-md text-label-md flex items-center justify-center shrink-0">3</div>
+<div class="space-y-0.5">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">Descente excentrique</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Redescendez sous contrôle en 2 secondes complètes en inspirant profondément jusqu'au niveau des épaules.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Coach Tip Callout -->
+<div class="bg-surface-container p-space-md rounded-xl flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-primary-fixed/15 text-primary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">smart_toy</span>
+</div>
+<div class="space-y-0.5">
+<div class="font-label-mono-stat text-label-mono-stat uppercase text-primary-fixed font-bold tracking-wider">Conseil du Coach</div>
+<p class="font-body-md text-body-md text-on-surface font-medium leading-relaxed">
+            "Gardez les abdominaux bien gainés et verrouillez le bassin pour neutraliser toute cambrure excessive du bas du dos."
+          </p>
+</div>
+</div>
+<!-- Primary Action CTA -->
+<button class="w-full h-13 py-3.5 px-space-lg rounded-full bg-primary-fixed text-on-primary-fixed font-label-lg text-label-lg font-bold flex items-center justify-center gap-space-xs shadow-[0_6px_20px_rgba(195,244,0,0.3)] hover:scale-[0.99] active:scale-[0.97] transition-all" id="add-to-workout-btn">
+<span class="material-symbols-outlined text-[22px]">add_circle</span>
+<span>+ Ajouter à mon programme du jour</span>
+</button>
+</div>
+</section>
+<!-- Muscle Groups Directory Accordion / Grid -->
+<section class="space-y-space-md pt-2">
+<div class="flex items-center justify-between px-1">
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">Groupes Musculaires</h3>
+<span class="font-label-mono-stat text-label-mono-stat text-on-surface-variant uppercase">6 Familles</span>
+</div>
+<div class="grid grid-cols-1 gap-space-xs">
+<!-- Pectoraux -->
+<div class="muscle-category group cursor-pointer bg-surface-container-low hover:bg-surface-container p-space-md rounded-xl flex items-center justify-between transition-colors">
+<div class="flex items-center gap-space-md">
+<div class="w-11 h-11 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-fixed">
+<span class="material-symbols-outlined text-[24px]">exercise</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface font-bold">Pectoraux</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Haut de poitrine, faisceau moyen, dips</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-mono-stat text-label-mono-stat text-on-surface">18 exercices</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</div>
+</div>
+<!-- Dos -->
+<div class="muscle-category group cursor-pointer bg-surface-container-low hover:bg-surface-container p-space-md rounded-xl flex items-center justify-between transition-colors">
+<div class="flex items-center gap-space-md">
+<div class="w-11 h-11 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-fixed">
+<span class="material-symbols-outlined text-[24px]">accessibility_new</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface font-bold">Dos</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Grand dorsal, trapèzes, lombaires</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-mono-stat text-label-mono-stat text-on-surface">22 exercices</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</div>
+</div>
+<!-- Jambes -->
+<div class="muscle-category group cursor-pointer bg-surface-container-low hover:bg-surface-container p-space-md rounded-xl flex items-center justify-between transition-colors">
+<div class="flex items-center gap-space-md">
+<div class="w-11 h-11 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-fixed">
+<span class="material-symbols-outlined text-[24px]">directions_run</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface font-bold">Jambes</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Quadriceps, ischio-jambiers, mollets</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-mono-stat text-label-mono-stat text-on-surface">26 exercices</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</div>
+</div>
+<!-- Épaules (Active Group) -->
+<div class="muscle-category group cursor-pointer bg-surface-container p-space-md rounded-xl flex items-center justify-between transition-colors">
+<div class="flex items-center gap-space-md">
+<div class="w-11 h-11 rounded-lg bg-primary-fixed/20 flex items-center justify-center text-primary-fixed">
+<span class="material-symbols-outlined text-[24px]">sports_martial_arts</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface font-bold flex items-center gap-2">
+              Épaules
+              <span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Deltoïdes antérieur, latéral &amp; postérieur</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-mono-stat text-label-mono-stat text-primary-fixed font-bold">15 exercices</span>
+<span class="material-symbols-outlined text-primary-fixed text-[20px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</div>
+<!-- Bras & Triceps/Biceps -->
+<div class="muscle-category group cursor-pointer bg-surface-container-low hover:bg-surface-container p-space-md rounded-xl flex items-center justify-between transition-colors">
+<div class="flex items-center gap-space-md">
+<div class="w-11 h-11 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-fixed">
+<span class="material-symbols-outlined text-[24px]">fitness_center</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface font-bold">Bras &amp; Triceps/Biceps</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Curls barre, poulies, extensions nuque</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-mono-stat text-label-mono-stat text-on-surface">19 exercices</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</div>
+</div>
+<!-- Abdominaux & Gainage -->
+<div class="muscle-category group cursor-pointer bg-surface-container-low hover:bg-surface-container p-space-md rounded-xl flex items-center justify-between transition-colors">
+<div class="flex items-center gap-space-md">
+<div class="w-11 h-11 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-fixed">
+<span class="material-symbols-outlined text-[24px]">shield</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface font-bold">Abdominaux &amp; Gainage</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Grand droit, obliques, transverse</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-mono-stat text-label-mono-stat text-on-surface">14 exercices</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Toast Notification Element -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-surface-container-highest text-on-surface px-space-lg py-3 rounded-full flex items-center gap-space-sm shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50" id="toast-notify">
+<span class="material-symbols-outlined text-primary-fixed text-[20px]" id="toast-icon">check_circle</span>
+<span class="font-label-md text-label-md" id="toast-msg">Ajouté à la séance du jour !</span>
+</div>
+</div>
+<script>
+  (function initExerciseScreen() {
+    // Search bar functionality
+    const searchInput = document.getElementById('exercise-search-input');
+    const clearBtn = document.getElementById('clear-search-btn');
+
+    if (searchInput && clearBtn) {
+      searchInput.addEventListener('input', (e) => {
+        if (e.target.value.length > 0) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+      });
+
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearBtn.classList.add('hidden');
+        searchInput.focus();
+      });
+    }
+
+    // Filter Chips toggling
+    const chips = document.querySelectorAll('.filter-chip');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => {
+          c.classList.remove('bg-primary-fixed', 'text-on-primary-fixed', 'font-semibold');
+          c.classList.add('bg-surface-container-high', 'text-on-surface');
+        });
+        chip.classList.remove('bg-surface-container-high', 'text-on-surface');
+        chip.classList.add('bg-primary-fixed', 'text-on-primary-fixed', 'font-semibold');
+      });
+    });
+
+    // Toast helper
+    function showToast(message, icon = 'check_circle') {
+      const toast = document.getElementById('toast-notify');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
+      if (!toast) return;
+
+      toastMsg.textContent = message;
+      toastIcon.textContent = icon;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    // Add to workout CTA
+    const addBtn = document.getElementById('add-to-workout-btn');
+    if (addBtn) {
+      addBtn.addEventListener('click', () => {
+        showToast('Développé militaire ajouté à votre séance !', 'task_alt');
+      });
+    }
+
+    // Bookmark/Favorite toggle
+    const favBtn = document.getElementById('favorite-btn');
+    const favIcon = document.getElementById('fav-icon');
+    let isBookmarked = false;
+    if (favBtn && favIcon) {
+      favBtn.addEventListener('click', () => {
+        isBookmarked = !isBookmarked;
+        if (isBookmarked) {
+          favIcon.textContent = 'bookmark';
+          favIcon.style.fontVariationSettings = "'FILL' 1";
+          favBtn.classList.add('text-primary-fixed');
+          showToast('Exercice enregistré dans vos favoris', 'bookmark_added');
+        } else {
+          favIcon.textContent = 'bookmark_border';
+          favIcon.style.fontVariationSettings = "'FILL' 0";
+          favBtn.classList.remove('text-primary-fixed');
+          showToast('Exercice retiré des favoris', 'bookmark_remove');
+        }
+      });
+    }
+  })();
+</script></main></body></html>

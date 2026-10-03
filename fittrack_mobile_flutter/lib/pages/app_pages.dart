@@ -1,0 +1,10 @@
+export '../features/auth/presentation/pages/auth_pages.dart';
+export '../features/programs/presentation/pages/home_page.dart';
+export '../features/programs/presentation/pages/programs_page.dart';
+export '../features/programs/presentation/pages/create_program_page.dart';
+export '../features/workouts/presentation/pages/workout_page.dart';
+export '../features/goals/presentation/pages/goals_page.dart';
+export '../features/settings/presentation/pages/profile_page.dart';
+export '../features/exercises/presentation/pages/exercises_page.dart';
+export '../features/achievements/presentation/pages/achievements_page.dart';
+export '../features/achievements/presentation/pages/success_page.dart';

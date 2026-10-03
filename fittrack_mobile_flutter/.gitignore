@@ -1,0 +1,13 @@
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+coverage/
+.env
+*.freezed.dart
+*.g.dart
+ios/Pods/
+ios/.symlinks/
+android/.gradle/
+android/local.properties

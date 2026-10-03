@@ -1,0 +1,527 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "FitTrack API",
+    "description": "API REST pour l'application de suivi fitness FitTrack",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "/api", "description": "Serveur API" }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "Authentification et gestion du profil" },
+    { "name": "Exercices", "description": "Catalogue statique d'exercices" },
+    { "name": "Programmes", "description": "Programmes d'entraînement" },
+    { "name": "Seances", "description": "Séances réalisées" },
+    { "name": "Objectifs", "description": "Objectifs fitness" },
+    { "name": "Succes", "description": "Succès débloqués" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "64f1a2b3c4d5e6f7a8b9c0d1" },
+          "email": { "type": "string", "example": "farid@example.com" },
+          "nom": { "type": "string", "example": "Dossou" },
+          "prenom": { "type": "string", "example": "Farid" },
+          "poids": { "type": "number", "example": 78.5 },
+          "taille": { "type": "number", "example": 1.78 },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "example": "✅ Connexion réussie" },
+          "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
+          "user": { "$ref": "#/components/schemas/User" }
+        }
+      },
+      "RegisterInput": {
+        "type": "object",
+        "required": ["email", "motDePasse"],
+        "properties": {
+          "email": { "type": "string", "example": "farid@example.com" },
+          "motDePasse": { "type": "string", "example": "motdepasse123" }
+        }
+      },
+      "ProfileUpdateInput": {
+        "type": "object",
+        "properties": {
+          "nom": { "type": "string", "example": "Dossou" },
+          "prenom": { "type": "string", "example": "Farid" },
+          "poids": { "type": "number", "example": 76.2 },
+          "taille": { "type": "number", "example": 1.78 }
+        }
+      },
+      "ExerciceProgramme": {
+        "type": "object",
+        "properties": {
+          "exerciceId": { "type": "string", "example": "pec-001" },
+          "ordre": { "type": "integer", "example": 1 }
+        }
+      },
+      "Jour": {
+        "type": "object",
+        "properties": {
+          "jour": { "type": "string", "enum": ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"], "example": "Lundi" },
+          "horaire": { "type": "string", "example": "07:00" },
+          "exercices": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ExerciceProgramme" }
+          }
+        }
+      },
+      "Programme": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "64f1a2b3c4d5e6f7a8b9c0d2" },
+          "utilisateur": { "$ref": "#/components/schemas/User" },
+          "nom": { "type": "string", "example": "Programme minceur" },
+          "jours": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Jour" }
+          },
+          "actif": { "type": "boolean", "example": true },
+          "dateCreation": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ProgrammeInput": {
+        "type": "object",
+        "required": ["nom"],
+        "properties": {
+          "nom": { "type": "string", "example": "Programme minceur" },
+          "jours": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Jour" }
+          },
+          "actif": { "type": "boolean", "example": true }
+        }
+      },
+      "Serie": {
+        "type": "object",
+        "properties": {
+          "numero": { "type": "integer", "example": 1 },
+          "repetitions": { "type": "integer", "example": 12 },
+          "charge": { "type": "number", "example": 40 }
+        }
+      },
+      "ExerciceSeance": {
+        "type": "object",
+        "properties": {
+          "exerciceId": { "type": "string", "example": "pec-001" },
+          "series": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Serie" }
+          },
+          "tempsRepos": { "type": "integer", "example": 60 }
+        }
+      },
+      "Seance": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "64f1a2b3c4d5e6f7a8b9c0d3" },
+          "utilisateur": { "$ref": "#/components/schemas/User" },
+          "date": { "type": "string", "format": "date-time" },
+          "exercices": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ExerciceSeance" }
+          },
+          "statut": { "type": "string", "enum": ["brouillon", "validee"], "example": "brouillon" },
+          "valideeLe": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "SeanceInput": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date-time" },
+          "exercices": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ExerciceSeance" }
+          }
+        }
+      },
+      "QuestionMotivation": {
+        "type": "object",
+        "properties": {
+          "question": { "type": "string", "example": "Pourquoi cet objectif est important pour toi ?" },
+          "reponse": { "type": "string", "example": "Pour ma santé et ma confiance en moi" }
+        }
+      },
+      "Objectif": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "64f1a2b3c4d5e6f7a8b9c0d4" },
+          "utilisateur": { "$ref": "#/components/schemas/User" },
+          "type": { "type": "string", "example": "poids_cible" },
+          "valeurCible": { "type": "number", "example": 75 },
+          "questionsMotivation": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/QuestionMotivation" }
+          },
+          "statut": { "type": "string", "enum": ["en_cours", "atteint", "abandonne"], "example": "en_cours" },
+          "dateCreation": { "type": "string", "format": "date-time" },
+          "dateCible": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "ObjectifInput": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": { "type": "string", "example": "poids_cible" },
+          "valeurCible": { "type": "number", "example": 75 },
+          "dateCible": { "type": "string", "format": "date-time" },
+          "reponses": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["Pour ma santé", "3 fois par semaine"]
+          }
+        }
+      },
+      "Succes": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "64f1a2b3c4d5e6f7a8b9c0d5" },
+          "utilisateur": { "$ref": "#/components/schemas/User" },
+          "objectif": { "$ref": "#/components/schemas/Objectif" },
+          "dateObtention": { "type": "string", "format": "date-time" },
+          "description": { "type": "string", "example": "Objectif poids atteint : 75kg" }
+        }
+      },
+      "GroupeExercices": {
+        "type": "object",
+        "properties": {
+          "muscle": { "type": "string", "example": "Pectoraux" },
+          "exercices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string", "example": "pec-001" },
+                "uuid": { "type": "string", "example": "a1b2c3d4-0001-4000-8000-000000000001" },
+                "name_fr": { "type": "string", "example": "Développé couché barre" },
+                "description_fr": { "type": "string" },
+                "category": { "type": "string", "example": "force" },
+                "muscles_primary": { "type": "array", "items": { "type": "string" } },
+                "muscles_secondary": { "type": "array", "items": { "type": "string" } },
+                "equipment": { "type": "string", "example": "Barre, banc" }
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "example": "❌ Erreur serveur" },
+          "error": { "type": "string", "example": "Détail de l'erreur" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Inscription d'un nouvel utilisateur",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RegisterInput" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Inscription réussie",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } }
+          },
+          "400": { "description": "Champs manquants", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "409": { "description": "Email déjà utilisé", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Connexion utilisateur",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RegisterInput" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connexion réussie",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } }
+          },
+          "401": { "description": "Identifiants invalides", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/auth/profile": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Récupérer le profil de l'utilisateur connecté",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Profil utilisateur", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
+          "401": { "description": "Non authentifié" }
+        }
+      },
+      "put": {
+        "tags": ["Auth"],
+        "summary": "Mettre à jour le profil de l'utilisateur connecté",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProfileUpdateInput" } } }
+        },
+        "responses": {
+          "200": { "description": "Profil mis à jour", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } } },
+          "401": { "description": "Non authentifié" }
+        }
+      }
+    },
+    "/exercices": {
+      "get": {
+        "tags": ["Exercices"],
+        "summary": "Récupérer le catalogue d'exercices",
+        "security": [],
+        "parameters": [
+          { "name": "muscle", "in": "query", "schema": { "type": "string" }, "description": "Filtrer par groupe musculaire" },
+          { "name": "categorie", "in": "query", "schema": { "type": "string" }, "description": "Filtrer par catégorie" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des groupes musculaires et exercices",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/GroupeExercices" } } } }
+          }
+        }
+      }
+    },
+    "/exercices/{id}": {
+      "get": {
+        "tags": ["Exercices"],
+        "summary": "Récupérer un exercice précis",
+        "security": [],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Détail de l'exercice" },
+          "404": { "description": "Exercice introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/programmes": {
+      "post": {
+        "tags": ["Programmes"],
+        "summary": "Créer un programme",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProgrammeInput" } } }
+        },
+        "responses": {
+          "201": { "description": "Programme créé", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Programme" } } } }
+        }
+      },
+      "get": {
+        "tags": ["Programmes"],
+        "summary": "Lister les programmes de l'utilisateur",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Liste des programmes", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Programme" } } } } }
+        }
+      }
+    },
+    "/programmes/actif": {
+      "get": {
+        "tags": ["Programmes"],
+        "summary": "Récupérer le programme actif de l'utilisateur",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Programme actif (ou objet vide si aucun)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Programme" } } } }
+        }
+      }
+    },
+    "/programmes/{id}": {
+      "get": {
+        "tags": ["Programmes"],
+        "summary": "Récupérer un programme précis",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Détail du programme", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Programme" } } } },
+          "404": { "description": "Programme introuvable" }
+        }
+      },
+      "put": {
+        "tags": ["Programmes"],
+        "summary": "Mettre à jour un programme",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProgrammeInput" } } }
+        },
+        "responses": {
+          "200": { "description": "Programme mis à jour", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Programme" } } } },
+          "404": { "description": "Programme introuvable" }
+        }
+      },
+      "delete": {
+        "tags": ["Programmes"],
+        "summary": "Supprimer un programme",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Programme supprimé" },
+          "404": { "description": "Programme introuvable" }
+        }
+      }
+    },
+    "/seances": {
+      "post": {
+        "tags": ["Seances"],
+        "summary": "Créer une séance",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SeanceInput" } } }
+        },
+        "responses": {
+          "201": { "description": "Séance créée", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Seance" } } } }
+        }
+      },
+      "get": {
+        "tags": ["Seances"],
+        "summary": "Lister les séances de l'utilisateur",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Liste des séances", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Seance" } } } } }
+        }
+      }
+    },
+    "/seances/{id}": {
+      "get": {
+        "tags": ["Seances"],
+        "summary": "Récupérer une séance précise",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Détail de la séance", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Seance" } } } },
+          "404": { "description": "Séance introuvable" }
+        }
+      },
+      "put": {
+        "tags": ["Seances"],
+        "summary": "Mettre à jour une séance (brouillon uniquement)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SeanceInput" } } }
+        },
+        "responses": {
+          "200": { "description": "Séance mise à jour", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Seance" } } } },
+          "403": { "description": "Séance déjà validée" },
+          "404": { "description": "Séance introuvable" }
+        }
+      },
+      "delete": {
+        "tags": ["Seances"],
+        "summary": "Supprimer une séance",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Séance supprimée" },
+          "404": { "description": "Séance introuvable" }
+        }
+      }
+    },
+    "/seances/{id}/valider": {
+      "put": {
+        "tags": ["Seances"],
+        "summary": "Valider une séance (fige les données, déclenche la vérification des objectifs)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Séance validée", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Seance" } } } },
+          "404": { "description": "Séance introuvable" },
+          "409": { "description": "Séance déjà validée" }
+        }
+      }
+    },
+    "/users/objectifs": {
+      "post": {
+        "tags": ["Objectifs"],
+        "summary": "Créer un objectif",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ObjectifInput" } } }
+        },
+        "responses": {
+          "201": { "description": "Objectif créé", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Objectif" } } } }
+        }
+      },
+      "get": {
+        "tags": ["Objectifs"],
+        "summary": "Lister les objectifs de l'utilisateur",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Liste des objectifs", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Objectif" } } } } }
+        }
+      }
+    },
+    "/users/objectifs/{id}": {
+      "get": {
+        "tags": ["Objectifs"],
+        "summary": "Récupérer un objectif précis",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Détail de l'objectif", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Objectif" } } } },
+          "404": { "description": "Objectif introuvable" }
+        }
+      },
+      "put": {
+        "tags": ["Objectifs"],
+        "summary": "Mettre à jour un objectif",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ObjectifInput" } } }
+        },
+        "responses": {
+          "200": { "description": "Objectif mis à jour", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Objectif" } } } },
+          "404": { "description": "Objectif introuvable" }
+        }
+      }
+    },
+    "/users/succes": {
+      "get": {
+        "tags": ["Succes"],
+        "summary": "Lister les succès de l'utilisateur",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Liste des succès", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Succes" } } } } }
+        }
+      }
+    }
+  }
+}

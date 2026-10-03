@@ -1,0 +1,182 @@
+[
+  {
+    "muscle": "Pectoraux",
+    "exercices": [
+      {
+        "id": "pec-001",
+        "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+        "name_fr": "Développé couché barre",
+        "description_fr": "Allongé sur un banc, poussez la barre depuis la poitrine jusqu'à l'extension complète des bras.",
+        "category": "force",
+        "muscles_primary": ["Pectoraux"],
+        "muscles_secondary": ["Triceps", "Épaules"],
+        "equipment": "Barre, banc"
+      },
+      {
+        "id": "pec-002",
+        "uuid": "a1b2c3d4-0001-4000-8000-000000000002",
+        "name_fr": "Pompes",
+        "description_fr": "Exercice au poids du corps pour renforcer les pectoraux, triceps et épaules.",
+        "category": "force",
+        "muscles_primary": ["Pectoraux"],
+        "muscles_secondary": ["Triceps", "Épaules"],
+        "equipment": "Aucun"
+      },
+      {
+        "id": "pec-003",
+        "uuid": "a1b2c3d4-0001-4000-8000-000000000003",
+        "name_fr": "Écarté couché haltères",
+        "description_fr": "Allongé sur un banc, écartez puis rapprochez les haltères au-dessus de la poitrine.",
+        "category": "isolation",
+        "muscles_primary": ["Pectoraux"],
+        "muscles_secondary": ["Épaules"],
+        "equipment": "Haltères, banc"
+      }
+    ]
+  },
+  {
+    "muscle": "Dos",
+    "exercices": [
+      {
+        "id": "dos-001",
+        "uuid": "a1b2c3d4-0002-4000-8000-000000000001",
+        "name_fr": "Tractions",
+        "description_fr": "Suspendu à une barre, tirez le corps vers le haut jusqu'à ce que le menton dépasse la barre.",
+        "category": "force",
+        "muscles_primary": ["Dos"],
+        "muscles_secondary": ["Biceps", "Avant-bras"],
+        "equipment": "Barre de traction"
+      },
+      {
+        "id": "dos-002",
+        "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+        "name_fr": "Rowing barre",
+        "description_fr": "Buste penché en avant, tirez la barre vers l'abdomen en contractant le dos.",
+        "category": "force",
+        "muscles_primary": ["Dos"],
+        "muscles_secondary": ["Biceps"],
+        "equipment": "Barre"
+      },
+      {
+        "id": "dos-003",
+        "uuid": "a1b2c3d4-0002-4000-8000-000000000003",
+        "name_fr": "Tirage vertical poulie",
+        "description_fr": "Assis face à la poulie haute, tirez la barre vers la poitrine.",
+        "category": "force",
+        "muscles_primary": ["Dos"],
+        "muscles_secondary": ["Biceps"],
+        "equipment": "Poulie"
+      }
+    ]
+  },
+  {
+    "muscle": "Jambes",
+    "exercices": [
+      {
+        "id": "jam-001",
+        "uuid": "a1b2c3d4-0003-4000-8000-000000000001",
+        "name_fr": "Squat",
+        "description_fr": "Fléchissez les genoux en gardant le dos droit, puis remontez en poussant sur les talons.",
+        "category": "force",
+        "muscles_primary": ["Quadriceps", "Fessiers"],
+        "muscles_secondary": ["Ischio-jambiers"],
+        "equipment": "Barre (optionnel)"
+      },
+      {
+        "id": "jam-002",
+        "uuid": "a1b2c3d4-0003-4000-8000-000000000002",
+        "name_fr": "Fentes",
+        "description_fr": "Faites un grand pas en avant et fléchissez les deux genoux à 90 degrés.",
+        "category": "force",
+        "muscles_primary": ["Quadriceps", "Fessiers"],
+        "muscles_secondary": ["Ischio-jambiers"],
+        "equipment": "Haltères (optionnel)"
+      },
+      {
+        "id": "jam-003",
+        "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+        "name_fr": "Presse à cuisses",
+        "description_fr": "Assis sur la machine, poussez la plateforme avec les jambes.",
+        "category": "force",
+        "muscles_primary": ["Quadriceps"],
+        "muscles_secondary": ["Fessiers", "Ischio-jambiers"],
+        "equipment": "Machine presse"
+      }
+    ]
+  },
+  {
+    "muscle": "Épaules",
+    "exercices": [
+      {
+        "id": "epa-001",
+        "uuid": "a1b2c3d4-0004-4000-8000-000000000001",
+        "name_fr": "Développé militaire",
+        "description_fr": "Debout ou assis, poussez la barre au-dessus de la tête jusqu'à extension complète.",
+        "category": "force",
+        "muscles_primary": ["Épaules"],
+        "muscles_secondary": ["Triceps"],
+        "equipment": "Barre"
+      },
+      {
+        "id": "epa-002",
+        "uuid": "a1b2c3d4-0004-4000-8000-000000000002",
+        "name_fr": "Élévations latérales",
+        "description_fr": "Levez les haltères sur les côtés jusqu'à hauteur d'épaule.",
+        "category": "isolation",
+        "muscles_primary": ["Épaules"],
+        "muscles_secondary": [],
+        "equipment": "Haltères"
+      }
+    ]
+  },
+  {
+    "muscle": "Bras",
+    "exercices": [
+      {
+        "id": "bra-001",
+        "uuid": "a1b2c3d4-0005-4000-8000-000000000001",
+        "name_fr": "Curl biceps haltères",
+        "description_fr": "Debout, fléchissez les coudes pour remonter les haltères vers les épaules.",
+        "category": "isolation",
+        "muscles_primary": ["Biceps"],
+        "muscles_secondary": ["Avant-bras"],
+        "equipment": "Haltères"
+      },
+      {
+        "id": "bra-002",
+        "uuid": "a1b2c3d4-0005-4000-8000-000000000002",
+        "name_fr": "Extension triceps poulie",
+        "description_fr": "Face à la poulie haute, poussez la corde vers le bas en tendant les bras.",
+        "category": "isolation",
+        "muscles_primary": ["Triceps"],
+        "muscles_secondary": [],
+        "equipment": "Poulie"
+      }
+    ]
+  },
+  {
+    "muscle": "Abdominaux",
+    "exercices": [
+      {
+        "id": "abd-001",
+        "uuid": "a1b2c3d4-0006-4000-8000-000000000001",
+        "name_fr": "Crunch",
+        "description_fr": "Allongé, relevez le buste vers les genoux en contractant les abdominaux.",
+        "category": "isolation",
+        "muscles_primary": ["Abdominaux"],
+        "muscles_secondary": [],
+        "equipment": "Aucun"
+      },
+      {
+        "id": "abd-002",
+        "uuid": "a1b2c3d4-0006-4000-8000-000000000002",
+        "name_fr": "Gainage planche",
+        "description_fr": "Maintenez le corps aligné en appui sur les avant-bras et les pieds.",
+        "category": "gainage",
+        "muscles_primary": ["Abdominaux"],
+        "muscles_secondary": ["Dos"],
+        "equipment": "Aucun"
+      }
+    ]
+  }
+]
