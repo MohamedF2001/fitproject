@@ -146,10 +146,62 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   // --- API Actions ---
 
   Future<void> _create() async {
+    final activeProgram = await ref.read(activeProgramProvider.future);
+    List<ExerciceSeanceModel> prefilledExercises = [];
+
+    if (activeProgram != null && activeProgram.jours.isNotEmpty) {
+      if (!mounted) return;
+      final selectedJour = await showDialog<JourModel?>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Démarrer une séance'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Programme actif : ${activeProgram.nom}',
+                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+              ),
+              const SizedBox(height: 12),
+              const Text('Choisissez le jour du programme à charger, ou démarrez une séance libre :'),
+              const SizedBox(height: 12),
+              ...activeProgram.jours.map((jour) => ListTile(
+                    leading: const Icon(Icons.today, color: AppColors.primary),
+                    title: Text('${jour.jour} (${jour.horaire})'),
+                    subtitle: Text('${jour.exercices.length} exercice(s)'),
+                    onTap: () => Navigator.pop(context, jour),
+                  )),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, null), // Séance libre
+              child: const Text('Séance libre (sans jour)'),
+            ),
+          ],
+        ),
+      );
+
+      if (selectedJour != null) {
+        prefilledExercises = selectedJour.exercices
+            .map((e) => ExerciceSeanceModel(
+                  exerciceId: e.exerciceId,
+                  series: const [
+                    SerieModel(numero: 1, repetitions: 10, charge: 0),
+                    SerieModel(numero: 2, repetitions: 10, charge: 0),
+                    SerieModel(numero: 3, repetitions: 10, charge: 0),
+                  ],
+                  tempsRepos: 60,
+                ))
+            .toList();
+      }
+    }
+
     setState(() => _creating = true);
     final result = await executeApi(
       () => ref.read(workoutsApiProvider).create(
-            SeanceInput(date: DateTime.now()),
+            SeanceInput(date: DateTime.now(), exercices: prefilledExercises),
           ),
       ref.read(dioClientProvider),
     );

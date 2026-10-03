@@ -31,6 +31,18 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+    historiquePoids: [
+      {
+        poids: {
+          type: Number,
+          required: true,
+        },
+        date: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

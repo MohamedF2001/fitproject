@@ -81,11 +81,18 @@ export const updateProfile = async (req, res) => {
       return res.status(404).json({ message: "❌ Utilisateur introuvable" });
     }
 
-    const poidsAModifie = poids !== undefined && poids !== user.poids;
+    const nouveauPoidsFourni = poids !== undefined && poids !== null;
+    const poidsAModifie = nouveauPoidsFourni && poids !== user.poids;
 
     if (nom !== undefined) user.nom = nom;
     if (prenom !== undefined) user.prenom = prenom;
-    if (poids !== undefined) user.poids = poids;
+    if (nouveauPoidsFourni) {
+      user.poids = poids;
+      if (!user.historiquePoids) {
+        user.historiquePoids = [];
+      }
+      user.historiquePoids.push({ poids, date: new Date() });
+    }
     if (taille !== undefined) user.taille = taille;
 
     await user.save();

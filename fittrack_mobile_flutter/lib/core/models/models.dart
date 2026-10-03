@@ -6,6 +6,25 @@ String _string(dynamic value) => value?.toString() ?? '';
 Map<String, dynamic> _map(dynamic value) =>
     value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
 
+class PoidsEntreeModel {
+  const PoidsEntreeModel({
+    required this.poids,
+    this.date,
+  });
+  final double poids;
+  final DateTime? date;
+
+  factory PoidsEntreeModel.fromJson(Map<String, dynamic> json) => PoidsEntreeModel(
+        poids: (json['poids'] as num?)?.toDouble() ?? 0.0,
+        date: _date(json['date']),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'poids': poids,
+        if (date != null) 'date': date!.toIso8601String(),
+      };
+}
+
 @JsonSerializable()
 class UserModel {
   const UserModel({
@@ -15,6 +34,7 @@ class UserModel {
     this.prenom,
     this.poids,
     this.taille,
+    this.historiquePoids = const [],
     this.createdAt,
     this.updatedAt,
   });
@@ -24,6 +44,7 @@ class UserModel {
   final String? prenom;
   final double? poids;
   final double? taille;
+  final List<PoidsEntreeModel> historiquePoids;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
@@ -33,6 +54,9 @@ class UserModel {
         prenom: json['prenom']?.toString(),
         poids: (json['poids'] as num?)?.toDouble(),
         taille: (json['taille'] as num?)?.toDouble(),
+        historiquePoids: (json['historiquePoids'] as List? ?? const [])
+            .map((e) => PoidsEntreeModel.fromJson(_map(e)))
+            .toList(),
         createdAt: _date(json['createdAt']),
         updatedAt: _date(json['updatedAt']),
       );
@@ -43,6 +67,7 @@ class UserModel {
         if (prenom != null) 'prenom': prenom,
         if (poids != null) 'poids': poids,
         if (taille != null) 'taille': taille,
+        'historiquePoids': historiquePoids.map((e) => e.toJson()).toList(),
         if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
         if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
       };
