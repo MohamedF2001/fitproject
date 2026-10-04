@@ -6,6 +6,7 @@ import '../../../../core/providers/app_providers.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../shared/widgets/app_shell.dart';
+import '../../../../shared/widgets/exercise_media_widgets.dart';
 
 class ExercisesPage extends ConsumerStatefulWidget {
   const ExercisesPage({super.key});
@@ -82,8 +83,10 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                                       horizontal: 14, vertical: 6),
                                   child: ListTile(
                                     contentPadding: EdgeInsets.zero,
-                                    leading: const Icon(Icons.fitness_center,
-                                        color: AppColors.primary),
+                                    leading: ExerciseThumb(
+                                      exerciseId: exercise.id,
+                                      size: 44,
+                                    ),
                                     title: Text(exercise.nameFr),
                                     subtitle: Text(
                                       [exercise.category, exercise.equipment]
@@ -95,10 +98,22 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                                       context: context,
                                       builder: (_) => AlertDialog(
                                         title: Text(exercise.nameFr),
-                                        content: Text(
-                                          exercise.descriptionFr.isEmpty
-                                              ? 'Aucune description disponible.'
-                                              : exercise.descriptionFr,
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            ExerciseDemo(
+                                              exerciseId: exercise.id,
+                                              height: 160,
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              exercise.descriptionFr.isEmpty
+                                                  ? 'Aucune description disponible.'
+                                                  : exercise.descriptionFr,
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),

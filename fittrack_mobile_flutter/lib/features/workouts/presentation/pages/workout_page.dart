@@ -9,8 +9,12 @@ import 'package:intl/intl.dart';
 import '../../../../core/models/models.dart';
 import '../../../../core/providers/app_providers.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/one_rm.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../shared/widgets/app_shell.dart';
+import '../../../../shared/widgets/exercise_media_widgets.dart';
+import '../../../exercises/domain/exercise_media.dart';
+import '../../domain/last_sets.dart';
 
 class WorkoutPage extends ConsumerStatefulWidget {
   const WorkoutPage({super.key});
@@ -145,6 +149,14 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
 
   // --- API Actions ---
 
+  Future<List<SeanceModel>> _loadHistory() async {
+    try {
+      return await ref.read(workoutsProvider.future);
+    } catch (_) {
+      return const [];
+    }
+  }
+
   Future<void> _create() async {
     final activeProgram = await ref.read(activeProgramProvider.future);
     List<ExerciceSeanceModel> prefilledExercises = [];
@@ -184,17 +196,22 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       );
 
       if (selectedJour != null) {
-        prefilledExercises = selectedJour.exercices
-            .map((e) => ExerciceSeanceModel(
-                  exerciceId: e.exerciceId,
-                  series: const [
-                    SerieModel(numero: 1, repetitions: 10, charge: 0),
-                    SerieModel(numero: 2, repetitions: 10, charge: 0),
-                    SerieModel(numero: 3, repetitions: 10, charge: 0),
-                  ],
-                  tempsRepos: 60,
-                ))
-            .toList();
+        final history = await _loadHistory();
+        if (!mounted) return;
+
+        prefilledExercises = selectedJour.exercices.map((e) {
+          final lastSeries = LastSets.forExercise([e.exerciceId], history);
+          return ExerciceSeanceModel(
+            exerciceId: e.exerciceId,
+            series: lastSeries ??
+                const [
+                  SerieModel(numero: 1, repetitions: 10, charge: 0),
+                  SerieModel(numero: 2, repetitions: 10, charge: 0),
+                  SerieModel(numero: 3, repetitions: 10, charge: 0),
+                ],
+            tempsRepos: 60,
+          );
+        }).toList();
       }
     }
 
@@ -222,9 +239,12 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
     final groups = await ref.read(exercisesProvider.future);
     final all = groups.expand((group) => group.exercices).toList();
     if (all.isEmpty || _draft == null || !mounted) return;
+    final history = await _loadHistory();
+    if (!mounted) return;
+
     final exercise = await showDialog<ExerciceSeanceModel>(
       context: context,
-      builder: (_) => _AddExerciseDialog(exercises: all),
+      builder: (_) => _AddExerciseDialog(exercises: all, history: history),
     );
     if (exercise == null || !mounted) return;
     await _saveExercises([..._draft!.exercices, exercise]);
@@ -667,12 +687,31 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                     ],
                                   ),
                                   const SizedBox(height: 8),
-                                  Text(
-                                    exerciseName,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
-                                    ),
+                                  Row(
+                                    children: [
+                                      ExerciseThumb(
+                                        exerciseId: ExerciseMedia.canonicalId(
+                                              item.exerciceId,
+                                              exercisesAsync.value
+                                                      ?.expand(
+                                                          (g) => g.exercices)
+                                                      .toList() ??
+                                                  const [],
+                                            ) ??
+                                            item.exerciceId,
+                                        size: 44,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          exerciseName,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   const SizedBox(height: 8),
 
@@ -1357,9 +1396,13 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
 // --- Add Exercise Dialog with multi-set & rest time config ---
 
 class _AddExerciseDialog extends StatefulWidget {
-  const _AddExerciseDialog({required this.exercises});
+  const _AddExerciseDialog({
+    required this.exercises,
+    this.history = const [],
+  });
 
   final List<ExerciceModel> exercises;
+  final List<SeanceModel> history;
 
   @override
   State<_AddExerciseDialog> createState() => _AddExerciseDialogState();
@@ -1376,6 +1419,34 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
   void initState() {
     super.initState();
     _selectedId = widget.exercises.isNotEmpty ? widget.exercises.first.id : '';
+    if (_selectedId.isNotEmpty) {
+      _updatePrefillForExercise(_selectedId);
+    }
+  }
+
+  void _updatePrefillForExercise(String exerciseId) {
+    ExerciceModel? ex;
+    for (final item in widget.exercises) {
+      if (item.id == exerciseId || item.uuid == exerciseId) {
+        ex = item;
+        break;
+      }
+    }
+
+    final ids = ex != null
+        ? [ex.id, if (ex.uuid.isNotEmpty) ex.uuid]
+        : [exerciseId];
+
+    final lastSeries = LastSets.forExercise(ids, widget.history);
+    final top = lastSeries != null ? LastSets.topSet(lastSeries) : null;
+
+    if (top != null) {
+      _repsController.text = top.repetitions.toString();
+      _chargeController.text = LastSets.formatKg(top.charge);
+    } else {
+      _repsController.text = '10';
+      _chargeController.text = '0';
+    }
   }
 
   @override
@@ -1405,6 +1476,33 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
         ? _selectedId
         : widget.exercises.first.id;
 
+    ExerciceModel? selectedEx;
+    for (final item in widget.exercises) {
+      if (item.id == validSelection || item.uuid == validSelection) {
+        selectedEx = item;
+        break;
+      }
+    }
+
+    final ids = selectedEx != null
+        ? [selectedEx.id, if (selectedEx.uuid.isNotEmpty) selectedEx.uuid]
+        : [validSelection];
+
+    final lastSeries = LastSets.forExercise(ids, widget.history);
+    String? hintText;
+    if (lastSeries != null && lastSeries.isNotEmpty) {
+      final summary = LastSets.summarize(lastSeries);
+      final bestOneRm = OneRepMax.bestOfSets(lastSeries);
+      if (summary.isNotEmpty) {
+        if (bestOneRm != null) {
+          hintText =
+              'Dernière séance : $summary · 1RM estimé ≈ ${LastSets.formatKg(bestOneRm.value)} kg';
+        } else {
+          hintText = 'Dernière séance : $summary';
+        }
+      }
+    }
+
     return AlertDialog(
       title: const Text('Ajouter un exercice'),
       content: SingleChildScrollView(
@@ -1430,10 +1528,27 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
                   .toList(),
               onChanged: (value) {
                 if (value != null) {
-                  setState(() => _selectedId = value);
+                  setState(() {
+                    _selectedId = value;
+                    _updatePrefillForExercise(value);
+                  });
                 }
               },
             ),
+            const SizedBox(height: 12),
+            ExerciseDemo(
+              key: ValueKey(validSelection),
+              exerciseId: validSelection,
+              height: 140,
+            ),
+            if (hintText != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                hintText,
+                style:
+                    const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              ),
+            ],
             const SizedBox(height: 12),
             Row(
               children: [
