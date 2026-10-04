@@ -153,7 +153,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       if (!mounted) return;
       final selectedJour = await showDialog<JourModel?>(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (dialogContext) => AlertDialog(
           title: const Text('Démarrer une séance'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -170,13 +170,13 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                     leading: const Icon(Icons.today, color: AppColors.primary),
                     title: Text('${jour.jour} (${jour.horaire})'),
                     subtitle: Text('${jour.exercices.length} exercice(s)'),
-                    onTap: () => Navigator.pop(context, jour),
+                    onTap: () => Navigator.pop(dialogContext, jour),
                   )),
             ],
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context, null), // Séance libre
+              onPressed: () => Navigator.pop(dialogContext, null), // Séance libre
               child: const Text('Séance libre (sans jour)'),
             ),
           ],
@@ -1322,7 +1322,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   void _showChangeRestDialog(int exerciseIndex, int currentRest) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Temps de repos pour cet exercice'),
         content: SingleChildScrollView(
           child: Column(
@@ -1336,7 +1336,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                     ? const Icon(Icons.check, color: AppColors.primary)
                     : null,
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                   _updateExerciseRestTime(exerciseIndex, sec);
                 },
               );
@@ -1345,7 +1345,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Fermer'),
           ),
         ],
