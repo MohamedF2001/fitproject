@@ -146,10 +146,62 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   // --- API Actions ---
 
   Future<void> _create() async {
+    final activeProgram = await ref.read(activeProgramProvider.future);
+    List<ExerciceSeanceModel> prefilledExercises = [];
+
+    if (activeProgram != null && activeProgram.jours.isNotEmpty) {
+      if (!mounted) return;
+      final selectedJour = await showDialog<JourModel?>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Démarrer une séance'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Programme actif : ${activeProgram.nom}',
+                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+              ),
+              const SizedBox(height: 12),
+              const Text('Choisissez le jour du programme à charger, ou démarrez une séance libre :'),
+              const SizedBox(height: 12),
+              ...activeProgram.jours.map((jour) => ListTile(
+                    leading: const Icon(Icons.today, color: AppColors.primary),
+                    title: Text('${jour.jour} (${jour.horaire})'),
+                    subtitle: Text('${jour.exercices.length} exercice(s)'),
+                    onTap: () => Navigator.pop(dialogContext, jour),
+                  )),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, null), // Séance libre
+              child: const Text('Séance libre (sans jour)'),
+            ),
+          ],
+        ),
+      );
+
+      if (selectedJour != null) {
+        prefilledExercises = selectedJour.exercices
+            .map((e) => ExerciceSeanceModel(
+                  exerciceId: e.exerciceId,
+                  series: const [
+                    SerieModel(numero: 1, repetitions: 10, charge: 0),
+                    SerieModel(numero: 2, repetitions: 10, charge: 0),
+                    SerieModel(numero: 3, repetitions: 10, charge: 0),
+                  ],
+                  tempsRepos: 60,
+                ))
+            .toList();
+      }
+    }
+
     setState(() => _creating = true);
     final result = await executeApi(
       () => ref.read(workoutsApiProvider).create(
-            SeanceInput(date: DateTime.now()),
+            SeanceInput(date: DateTime.now(), exercices: prefilledExercises),
           ),
       ref.read(dioClientProvider),
     );
@@ -1270,7 +1322,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   void _showChangeRestDialog(int exerciseIndex, int currentRest) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Temps de repos pour cet exercice'),
         content: SingleChildScrollView(
           child: Column(
@@ -1284,7 +1336,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                     ? const Icon(Icons.check, color: AppColors.primary)
                     : null,
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                   _updateExerciseRestTime(exerciseIndex, sec);
                 },
               );
@@ -1293,7 +1345,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Fermer'),
           ),
         ],

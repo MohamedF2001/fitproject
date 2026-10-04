@@ -8,6 +8,7 @@ import '../../../../core/providers/app_providers.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../shared/widgets/app_shell.dart';
+import '../../../../shared/widgets/charts.dart';
 
 class GoalsPage extends ConsumerWidget {
   const GoalsPage({super.key});
@@ -121,89 +122,164 @@ class GoalsPage extends ConsumerWidget {
                 failureMessage(error),
                 onRetry: () => ref.invalidate(goalsProvider),
               ),
-              data: (goals) => goals.isEmpty
-                  ? EmptyState(
-                      title: 'Définis un objectif qui te ressemble',
-                      action: FilledButton(
-                        onPressed: () => _create(context, ref),
-                        child: const Text('Ajouter'),
+              data: (goals) {
+                final auth = ref.watch(authProvider);
+                final workoutsAsync = ref.watch(workoutsProvider);
+                final user = auth.user;
+                final workouts = workoutsAsync.asData?.value ?? const [];
+
+                return ListView(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screen,
+                    AppSpacing.md,
+                    AppSpacing.screen,
+                    100,
+                  ),
+                  children: [
+                    // Charge progression chart
+                    ChargeEvolutionGraphWidget(seances: workouts),
+                    const SizedBox(height: 16),
+
+                    // Weight evolution chart
+                    if (user != null) ...[
+                      PoidsEvolutionGraphWidget(
+                        historiquePoids: user.historiquePoids.isNotEmpty
+                            ? user.historiquePoids
+                            : (user.poids != null
+                                ? [
+                                    PoidsEntreeModel(
+                                        poids: user.poids!,
+                                        date: DateTime.now())
+                                  ]
+                                : const []),
                       ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.screen,
-                        AppSpacing.md,
-                        AppSpacing.screen,
-                        100,
-                      ),
-                      itemCount: goals.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (_, index) {
-                        final goal = goals[index];
-                        return AppCard(
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.track_changes,
-                                color: AppColors.primary),
-                            title: Text(
-                              goal.type.replaceAll('_', ' '),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w700),
-                            ),
-                            subtitle: Text(
-                              [
-                                if (goal.valeurCible != null)
-                                  'Cible : ${goal.valeurCible}',
-                                if (goal.questionsMotivation.isNotEmpty)
-                                  goal.questionsMotivation.first.reponse,
-                              ].join('\n'),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                StatusChip(goal.statut),
-                                PopupMenuButton<String>(
-                                  icon: const Icon(Icons.more_vert),
-                                  onSelected: (action) {
-                                    if (action == 'edit') {
-                                      _edit(context, ref, goal);
-                                    } else if (action == 'delete') {
-                                      _delete(context, ref, goal);
-                                    }
-                                  },
-                                  itemBuilder: (_) => [
-                                    const PopupMenuItem(
-                                      value: 'edit',
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.edit, size: 20),
-                                          SizedBox(width: 8),
-                                          Text('Modifier'),
-                                        ],
+                      const SizedBox(height: 16),
+                    ],
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'MES OBJECTIFS ACTIFS',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primary,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () => _create(context, ref),
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('Nouveau'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    if (goals.isEmpty)
+                      EmptyState(
+                        title: 'Définis un objectif qui te ressemble',
+                        action: FilledButton(
+                          onPressed: () => _create(context, ref),
+                          child: const Text('Ajouter un objectif'),
+                        ),
+                      )
+                    else
+                      ...goals.map((goal) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: AppCard(
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary
+                                        .withValues(alpha: 0.15),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.track_changes,
+                                      color: AppColors.primary, size: 22),
+                                ),
+                                title: Text(
+                                  goal.type.replaceAll('_', ' ').toUpperCase(),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 15),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (goal.valeurCible != null) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Valeur cible : ${goal.valeurCible} ${goal.type.contains('poids') ? 'kg' : ''}',
+                                        style: const TextStyle(
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.bold),
                                       ),
-                                    ),
-                                    const PopupMenuItem(
-                                      value: 'delete',
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.delete,
-                                              color: AppColors.error,
-                                              size: 20),
-                                          SizedBox(width: 8),
-                                          Text('Supprimer',
-                                              style: TextStyle(
-                                                  color: AppColors.error)),
-                                        ],
+                                    ],
+                                    if (goal.questionsMotivation.isNotEmpty &&
+                                        goal.questionsMotivation.first.reponse
+                                            .isNotEmpty) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '"${goal.questionsMotivation.first.reponse}"',
+                                        style: const TextStyle(
+                                            color: AppColors.textMuted,
+                                            fontStyle: FontStyle.italic),
                                       ),
+                                    ],
+                                  ],
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    StatusChip(goal.statut),
+                                    PopupMenuButton<String>(
+                                      icon: const Icon(Icons.more_vert),
+                                      onSelected: (action) {
+                                        if (action == 'edit') {
+                                          _edit(context, ref, goal);
+                                        } else if (action == 'delete') {
+                                          _delete(context, ref, goal);
+                                        }
+                                      },
+                                      itemBuilder: (_) => [
+                                        const PopupMenuItem(
+                                          value: 'edit',
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.edit, size: 20),
+                                              SizedBox(width: 8),
+                                              Text('Modifier'),
+                                            ],
+                                          ),
+                                        ),
+                                        const PopupMenuItem(
+                                          value: 'delete',
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.delete,
+                                                  color: AppColors.error,
+                                                  size: 20),
+                                              SizedBox(width: 8),
+                                              Text('Supprimer',
+                                                  style: TextStyle(
+                                                      color: AppColors.error)),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          )),
+                  ],
+                );
+              },
             ),
       );
 }
@@ -472,6 +548,3 @@ class _EditGoalDialogState extends State<_EditGoalDialog> {
     );
   }
 }
-
-
-
