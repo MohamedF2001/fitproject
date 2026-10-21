@@ -71,7 +71,10 @@ class SuccessPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   TextButton(
-                    onPressed: () => context.go('/achievements'),
+                    onPressed: () {
+                      context.go('/home');
+                      context.push('/achievements');
+                    },
                     child: const Text('Voir mes succès'),
                   ),
                 ],

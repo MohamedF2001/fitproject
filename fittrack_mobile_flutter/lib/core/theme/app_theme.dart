@@ -37,7 +37,7 @@ ThemeData buildAppTheme() {
   );
   return ThemeData(
     useMaterial3: true,
-    fontFamily: 'Plus Jakarta Sans',
+    fontFamily: 'Poppins',
     colorScheme: scheme,
     scaffoldBackgroundColor: AppColors.canvas,
     appBarTheme: const AppBarTheme(
@@ -78,5 +78,21 @@ ThemeData buildAppTheme() {
       ),
     ),
     dividerTheme: const DividerThemeData(color: AppColors.surface3),
+    navigationBarTheme: NavigationBarThemeData(
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: AppColors.primary,
+          );
+        }
+        return const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: AppColors.textMuted,
+        );
+      }),
+    ),
   );
 }

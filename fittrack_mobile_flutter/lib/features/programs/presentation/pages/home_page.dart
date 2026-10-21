@@ -60,7 +60,7 @@ class HomePage extends ConsumerWidget {
                   const SizedBox(width: 14),
                   Expanded(
                     child: Text(
-                      user?.email ?? '',
+                      user?.nom ?? '',
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -166,7 +166,7 @@ class _ValueCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               value,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
           ],
         ),

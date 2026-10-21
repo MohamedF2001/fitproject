@@ -87,7 +87,9 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                                       exerciseId: exercise.id,
                                       size: 44,
                                     ),
-                                    title: Text(exercise.nameFr),
+                                    title: Text(exercise.nameFr,style: TextStyle(
+                                      fontSize: 14,fontWeight: FontWeight.w500,
+                                    ),),
                                     subtitle: Text(
                                       [exercise.category, exercise.equipment]
                                           .where((value) => value.isNotEmpty)
