@@ -123,11 +123,11 @@ class ProgramsPage extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        FilledButton.tonalIcon(
+                        /*FilledButton.tonalIcon(
                           onPressed: () => context.push('/programs/create'),
                           icon: const Icon(Icons.add, size: 18),
                           label: const Text('Créer'),
-                        ),
+                        ),*/
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -135,7 +135,7 @@ class ProgramsPage extends ConsumerWidget {
                     // Active Program Card
                     if (activePrograms.isNotEmpty) ...[
                       const Text(
-                        'PROGRAMME ACTIF',
+                        'Programme actif',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -151,11 +151,11 @@ class ProgramsPage extends ConsumerWidget {
 
                     // Reserve Programs Section
                     if (reservePrograms.isNotEmpty) ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Column(
+                        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'AUTRES PROGRAMMES EN RÉSERVE',
+                            'Autres programmes en réserve',
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -216,7 +216,7 @@ class ProgramsPage extends ConsumerWidget {
                     Icon(Icons.bolt, size: 14, color: AppColors.primary),
                     SizedBox(width: 4),
                     Text(
-                      'PROGRAMME ACTIF',
+                      'Programme actif',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -248,7 +248,7 @@ class ProgramsPage extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '${program.jours.length} ${program.jours.length > 1 ? 'séances' : 'séance'} / sem • Personnalisé',
+            '${program.jours.length} ${program.jours.length > 1 ? 'séances' : 'séance'} / semaine • Personnalisé',
             style: const TextStyle(color: AppColors.textMuted),
           ),
           const SizedBox(height: 16),
@@ -287,17 +287,31 @@ class ProgramsPage extends ConsumerWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   onPressed: () => context.push('/programs/create', extra: program),
-                  icon: const Icon(Icons.edit_outlined, size: 18),
-                  label: const Text('Modifier'),
+                  //icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: const Text(
+                    style: TextStyle(fontSize: 12),
+                      'Modifier'),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   onPressed: () => context.go('/workouts'),
-                  icon: const Icon(Icons.play_arrow, size: 18),
-                  label: const Text('Séances'),
+                  //icon: const Icon(Icons.play_arrow, size: 18),
+                  label: const Text(
+                    style: TextStyle(fontSize: 12),
+                      'Séances'),
                 ),
               ),
               const SizedBox(width: 8),
@@ -329,13 +343,9 @@ class ProgramsPage extends ConsumerWidget {
                   TextButton.icon(
                     onPressed: () => _activate(context, ref, program),
                     icon: const Icon(Icons.swap_horiz, size: 18),
-                    label: const Text('Définir comme actif'),
-                  ),
-                  IconButton(
-                    onPressed: () => _delete(context, ref, program.id),
-                    icon: const Icon(Icons.delete_outline,
-                        size: 20, color: AppColors.textMuted),
-                    tooltip: 'Supprimer',
+                    label: const Text(
+                      style: TextStyle(fontSize: 11),
+                        'Définir comme actif'),
                   ),
                 ],
               ),
@@ -376,13 +386,31 @@ class ProgramsPage extends ConsumerWidget {
             ),
           ],
           const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              onPressed: () => context.push('/programs/create', extra: program),
-              icon: const Icon(Icons.edit_outlined, size: 16),
-              label: const Text('Modifier'),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () => context.push('/programs/create', extra: program),
+                    icon: const Icon(Icons.edit_outlined, size: 16),
+                    label: const Text('Modifier'),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () => _delete(context, ref, program.id),
+                icon: const Icon(Icons.delete_outline,
+                    size: 20, color: Colors.redAccent),
+                tooltip: 'Supprimer',
+              ),
+            ],
           ),
         ],
       ),

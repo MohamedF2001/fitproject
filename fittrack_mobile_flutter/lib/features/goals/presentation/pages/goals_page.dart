@@ -10,6 +10,24 @@ import '../../../../core/widgets/app_widgets.dart';
 import '../../../../shared/widgets/app_shell.dart';
 import '../../../../shared/widgets/charts.dart';
 
+IconData _getGoalIcon(String type) {
+  final lower = type.toLowerCase();
+  if (lower.contains('poids') || lower.contains('weight')) {
+    return Icons.monitor_weight_rounded;
+  } else if (lower.contains('muscle') || lower.contains('force')) {
+    return Icons.fitness_center_rounded;
+  } else if (lower.contains('regularite') || lower.contains('seance')) {
+    return Icons.event_available_rounded;
+  }
+  return Icons.track_changes_rounded;
+}
+
+String _formatGoalType(String type) {
+  if (type.isEmpty) return 'Objectif';
+  final formatted = type.replaceAll('_', ' ').trim();
+  return formatted[0].toUpperCase() + formatted.substring(1);
+}
+
 class GoalsPage extends ConsumerWidget {
   const GoalsPage({super.key});
 
@@ -160,7 +178,7 @@ class GoalsPage extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'MES OBJECTIFS ACTIFS',
+                          'Mes objectifs actifs',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
@@ -189,91 +207,146 @@ class GoalsPage extends ConsumerWidget {
                       ...goals.map((goal) => Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: AppCard(
-                              child: ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                leading: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.15),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.track_changes,
-                                      color: AppColors.primary, size: 22),
-                                ),
-                                title: Text(
-                                  goal.type.replaceAll('_', ' ').toUpperCase(),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 15),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (goal.valeurCible != null) ...[
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Valeur cible : ${goal.valeurCible} ${goal.type.contains('poids') ? 'kg' : ''}',
-                                        style: const TextStyle(
-                                            color: AppColors.primary,
-                                            fontWeight: FontWeight.bold),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary
+                                              .withValues(alpha: 0.15),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Icon(
+                                          _getGoalIcon(goal.type),
+                                          color: AppColors.primary,
+                                          size: 18,
+                                        ),
                                       ),
-                                    ],
-                                    if (goal.questionsMotivation.isNotEmpty &&
-                                        goal.questionsMotivation.first.reponse
-                                            .isNotEmpty) ...[
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '"${goal.questionsMotivation.first.reponse}"',
-                                        style: const TextStyle(
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              _formatGoalType(goal.type),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                            if (goal.valeurCible != null) ...[
+                                              const SizedBox(height: 2),
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.flag_outlined,
+                                                    size: 10,
+                                                    color: AppColors.primary,
+                                                  ),
+                                                  const SizedBox(width: 2),
+                                                  Text(
+                                                    'Cible : ${goal.valeurCible} ${goal.type.contains('poids') ? 'kg' : ''}',
+                                                    style: const TextStyle(
+                                                      color: AppColors.primary,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 10,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                      StatusChip(goal.statut),
+                                      PopupMenuButton<String>(
+                                        padding: EdgeInsets.zero,
+                                        icon: const Icon(Icons.more_vert,
                                             color: AppColors.textMuted,
-                                            fontStyle: FontStyle.italic),
+                                            size: 18),
+                                        onSelected: (action) {
+                                          if (action == 'edit') {
+                                            _edit(context, ref, goal);
+                                          } else if (action == 'delete') {
+                                            _delete(context, ref, goal);
+                                          }
+                                        },
+                                        itemBuilder: (_) => [
+                                          const PopupMenuItem(
+                                            value: 'edit',
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.edit, size: 10),
+                                                SizedBox(width: 8),
+                                                Text('Modifier'),
+                                              ],
+                                            ),
+                                          ),
+                                          const PopupMenuItem(
+                                            value: 'delete',
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.delete,
+                                                    color: AppColors.error,
+                                                    size: 10),
+                                                SizedBox(width: 8),
+                                                Text('Supprimer',
+                                                    style: TextStyle(
+                                                        color: AppColors.error)),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
-                                  ],
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    StatusChip(goal.statut),
-                                    PopupMenuButton<String>(
-                                      icon: const Icon(Icons.more_vert),
-                                      onSelected: (action) {
-                                        if (action == 'edit') {
-                                          _edit(context, ref, goal);
-                                        } else if (action == 'delete') {
-                                          _delete(context, ref, goal);
-                                        }
-                                      },
-                                      itemBuilder: (_) => [
-                                        const PopupMenuItem(
-                                          value: 'edit',
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.edit, size: 20),
-                                              SizedBox(width: 8),
-                                              Text('Modifier'),
-                                            ],
-                                          ),
+                                  ),
+                                  if (goal.questionsMotivation.isNotEmpty &&
+                                      goal.questionsMotivation.first.reponse
+                                          .isNotEmpty) ...[
+                                    const SizedBox(height: 12),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.surface1
+                                            .withValues(alpha: 0.5),
+                                        borderRadius:
+                                            BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.05),
                                         ),
-                                        const PopupMenuItem(
-                                          value: 'delete',
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.delete,
-                                                  color: AppColors.error,
-                                                  size: 20),
-                                              SizedBox(width: 8),
-                                              Text('Supprimer',
-                                                  style: TextStyle(
-                                                      color: AppColors.error)),
-                                            ],
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.format_quote_rounded,
+                                            size: 16,
+                                            color: AppColors.primary,
                                           ),
-                                        ),
-                                      ],
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              goal.questionsMotivation.first
+                                                  .reponse,
+                                              style: const TextStyle(
+                                                color: AppColors.textMuted,
+                                                fontSize: 13,
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
-                                ),
+                                ],
                               ),
                             ),
                           )),
@@ -309,7 +382,11 @@ class _CreateGoalDialogState extends State<_CreateGoalDialog> {
   Widget build(BuildContext context) {
     final dialogWidth = MediaQuery.of(context).size.width * 0.9;
     return AlertDialog(
-      title: const Text('Nouvel objectif'),
+      title: const Text(
+        style: TextStyle(
+          fontSize: 18
+        ),
+          'Nouvel objectif'),
       content: SizedBox(
         width: dialogWidth > 480 ? 480 : dialogWidth,
         child: SingleChildScrollView(
@@ -322,11 +399,15 @@ class _CreateGoalDialogState extends State<_CreateGoalDialog> {
                 items: [
                   ...goalTypes.map((item) => DropdownMenuItem(
                         value: item,
-                        child: Text(item.replaceAll('_', ' ')),
+                        child: Text(
+                          style: TextStyle(fontSize: 12),
+                            item.replaceAll('_', ' ')),
                       )),
                   const DropdownMenuItem(
                     value: 'autre',
-                    child: Text('Autre (personnalisé)'),
+                    child: Text(
+                      style: TextStyle(fontSize: 12),
+                        'Autre (personnalisé)'),
                   ),
                 ],
                 onChanged: (value) =>
@@ -337,6 +418,7 @@ class _CreateGoalDialogState extends State<_CreateGoalDialog> {
                 TextField(
                   controller: _customTypeController,
                   decoration: const InputDecoration(
+                    labelStyle: TextStyle(fontSize: 12),
                     labelText: 'Type d\'objectif personnalisé',
                     hintText: 'ex: Endurance, Souplesse...',
                   ),
@@ -348,7 +430,9 @@ class _CreateGoalDialogState extends State<_CreateGoalDialog> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(labelText: 'Valeur cible'),
+                decoration: const InputDecoration(
+                  labelStyle: TextStyle(fontSize: 12),
+                    labelText: 'Valeur cible'),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -356,6 +440,8 @@ class _CreateGoalDialogState extends State<_CreateGoalDialog> {
                 minLines: 2,
                 maxLines: 4,
                 decoration: const InputDecoration(
+                  hintMaxLines: 2,
+                  labelStyle: TextStyle(fontSize: 12),
                   labelText: 'Pourquoi cet objectif ? (optionnel)',
                   alignLabelWithHint: true,
                 ),
@@ -370,6 +456,11 @@ class _CreateGoalDialogState extends State<_CreateGoalDialog> {
           child: const Text('Annuler'),
         ),
         FilledButton(
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
           onPressed: () {
             final value = double.tryParse(_targetController.text);
             final motivation = _answerController.text.trim();
@@ -524,6 +615,11 @@ class _EditGoalDialogState extends State<_EditGoalDialog> {
           child: const Text('Annuler'),
         ),
         FilledButton(
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
           onPressed: () {
             final value = double.tryParse(_targetController.text);
             final motivation = _answerController.text.trim();

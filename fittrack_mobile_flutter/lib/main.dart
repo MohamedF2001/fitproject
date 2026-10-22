@@ -16,8 +16,8 @@ Future<void> main() async {
   await initializeDateFormatting('fr');
   final storage = await LocalStorage.init();
   final baseUrl = dotenv.maybeGet(AppConstants.apiBaseUrl) ??
-      'http://192.168.0.189:3000/api';
-
+      //'http://192.168.0.189:3000/api';
+      'https://fittrack-backend-murex.vercel.app/api';
   runApp(
     ProviderScope(
       overrides: [
@@ -34,12 +34,12 @@ class FitTrackApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authProvider);
+    final router = ref.watch(routerProvider);
     return MaterialApp.router(
-      title: 'Kinetic Volt',
+      title: 'FitTrack',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      routerConfig: createRouter(auth),
+      routerConfig: router,
     );
   }
 }

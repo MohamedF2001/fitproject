@@ -37,7 +37,7 @@ class AppButton extends StatelessWidget {
             backgroundColor: secondary ? AppColors.surface2 : AppColors.primary,
             foregroundColor: secondary ? AppColors.text : AppColors.onPrimary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(20),
             ),
           ),
           onPressed: onPressed,
@@ -47,8 +47,9 @@ class AppButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(label,
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
-                    const SizedBox(width: 8),
+                        style: const TextStyle(fontWeight: FontWeight.w700,fontSize:
+                        12)),
+                    const SizedBox(width: 5),
                     Icon(icon, size: 20),
                   ],
                 ),
@@ -91,7 +92,7 @@ class StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Chip(
         label: Text(
-          label.toUpperCase(),
+          label,
           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         ),
         backgroundColor: Colors.white.withValues(alpha: .06),

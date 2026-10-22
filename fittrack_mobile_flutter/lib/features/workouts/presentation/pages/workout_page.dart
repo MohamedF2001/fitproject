@@ -9,8 +9,12 @@ import 'package:intl/intl.dart';
 import '../../../../core/models/models.dart';
 import '../../../../core/providers/app_providers.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/one_rm.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../shared/widgets/app_shell.dart';
+import '../../../../shared/widgets/exercise_media_widgets.dart';
+import '../../../exercises/domain/exercise_media.dart';
+import '../../domain/last_sets.dart';
 
 class WorkoutPage extends ConsumerStatefulWidget {
   const WorkoutPage({super.key});
@@ -145,6 +149,14 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
 
   // --- API Actions ---
 
+  Future<List<SeanceModel>> _loadHistory() async {
+    try {
+      return await ref.read(workoutsProvider.future);
+    } catch (_) {
+      return const [];
+    }
+  }
+
   Future<void> _create() async {
     final activeProgram = await ref.read(activeProgramProvider.future);
     List<ExerciceSeanceModel> prefilledExercises = [];
@@ -161,10 +173,12 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
             children: [
               Text(
                 'Programme actif : ${activeProgram.nom}',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: AppColors.primary),
               ),
               const SizedBox(height: 12),
-              const Text('Choisissez le jour du programme à charger, ou démarrez une séance libre :'),
+              const Text(
+                  'Choisissez le jour du programme à charger, ou démarrez une séance libre :'),
               const SizedBox(height: 12),
               ...activeProgram.jours.map((jour) => ListTile(
                     leading: const Icon(Icons.today, color: AppColors.primary),
@@ -176,7 +190,8 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(dialogContext, null), // Séance libre
+              onPressed: () =>
+                  Navigator.pop(dialogContext, null), // Séance libre
               child: const Text('Séance libre (sans jour)'),
             ),
           ],
@@ -184,17 +199,22 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       );
 
       if (selectedJour != null) {
-        prefilledExercises = selectedJour.exercices
-            .map((e) => ExerciceSeanceModel(
-                  exerciceId: e.exerciceId,
-                  series: const [
-                    SerieModel(numero: 1, repetitions: 10, charge: 0),
-                    SerieModel(numero: 2, repetitions: 10, charge: 0),
-                    SerieModel(numero: 3, repetitions: 10, charge: 0),
-                  ],
-                  tempsRepos: 60,
-                ))
-            .toList();
+        final history = await _loadHistory();
+        if (!mounted) return;
+
+        prefilledExercises = selectedJour.exercices.map((e) {
+          final lastSeries = LastSets.forExercise([e.exerciceId], history);
+          return ExerciceSeanceModel(
+            exerciceId: e.exerciceId,
+            series: lastSeries ??
+                const [
+                  SerieModel(numero: 1, repetitions: 10, charge: 0),
+                  SerieModel(numero: 2, repetitions: 10, charge: 0),
+                  SerieModel(numero: 3, repetitions: 10, charge: 0),
+                ],
+            tempsRepos: 60,
+          );
+        }).toList();
       }
     }
 
@@ -222,9 +242,12 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
     final groups = await ref.read(exercisesProvider.future);
     final all = groups.expand((group) => group.exercices).toList();
     if (all.isEmpty || _draft == null || !mounted) return;
+    final history = await _loadHistory();
+    if (!mounted) return;
+
     final exercise = await showDialog<ExerciceSeanceModel>(
       context: context,
-      builder: (_) => _AddExerciseDialog(exercises: all),
+      builder: (_) => _AddExerciseDialog(exercises: all, history: history),
     );
     if (exercise == null || !mounted) return;
     await _saveExercises([..._draft!.exercices, exercise]);
@@ -258,8 +281,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
     await _saveExercises(updatedExercices);
   }
 
-  Future<void> _addSetToExercise(
-      int exerciseIndex, String exerciseName) async {
+  Future<void> _addSetToExercise(int exerciseIndex, String exerciseName) async {
     final draft = _draft;
     if (draft == null ||
         exerciseIndex < 0 ||
@@ -320,8 +342,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
     await _saveExercises(updatedExercices);
   }
 
-  Future<void> _removeSetFromExercise(
-      int exerciseIndex, int setIndex) async {
+  Future<void> _removeSetFromExercise(int exerciseIndex, int setIndex) async {
     final draft = _draft;
     if (draft == null) return;
     final exercise = draft.exercices[exerciseIndex];
@@ -523,7 +544,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Text(
-                                      'SÉANCE ACTIVE',
+                                      'Séance active',
                                       style: TextStyle(
                                         fontSize: 11,
                                         color: AppColors.textMuted,
@@ -538,7 +559,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                               .format(draft.date!),
                                       style: const TextStyle(
                                         fontSize: 18,
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ],
@@ -547,7 +568,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     const Text(
-                                      'EXERCICES',
+                                      'Exercices',
                                       style: TextStyle(
                                         fontSize: 10,
                                         color: AppColors.textMuted,
@@ -557,7 +578,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                     Text(
                                       '${draft.exercices.length}',
                                       style: const TextStyle(
-                                        fontSize: 24,
+                                        fontSize: 20,
                                         fontWeight: FontWeight.w900,
                                       ),
                                     ),
@@ -626,10 +647,11 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                         decoration: BoxDecoration(
                                           color: AppColors.primary
                                               .withValues(alpha: 0.15),
-                                          borderRadius: BorderRadius.circular(6),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                         ),
                                         child: Text(
-                                          'EXERCICE ${index + 1}/${draft.exercices.length}',
+                                          'Exercice ${index + 1}/${draft.exercices.length}',
                                           style: const TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w800,
@@ -650,10 +672,10 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                           ),
                                           IconButton(
                                             onPressed: () {
-                                              final updated =
-                                                  List<ExerciceSeanceModel>.from(
-                                                      draft.exercices)
-                                                    ..removeAt(index);
+                                              final updated = List<
+                                                      ExerciceSeanceModel>.from(
+                                                  draft.exercices)
+                                                ..removeAt(index);
                                               _saveExercises(updated);
                                             },
                                             tooltip: 'Supprimer l\'exercice',
@@ -667,12 +689,31 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                     ],
                                   ),
                                   const SizedBox(height: 8),
-                                  Text(
-                                    exerciseName,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
-                                    ),
+                                  Row(
+                                    children: [
+                                      ExerciseThumb(
+                                        exerciseId: ExerciseMedia.canonicalId(
+                                              item.exerciceId,
+                                              exercisesAsync.value
+                                                      ?.expand(
+                                                          (g) => g.exercices)
+                                                      .toList() ??
+                                                  const [],
+                                            ) ??
+                                            item.exerciceId,
+                                        size: 44,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          exerciseName,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   const SizedBox(height: 8),
 
@@ -684,77 +725,88 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                       color: AppColors.surface2,
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    child: Row(
+                                    child: Column(
                                       children: [
-                                        const Icon(Icons.timer_outlined,
-                                            size: 18, color: AppColors.primary),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            'Repos : ${_formatDuration(item.tempsRepos)}',
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ),
-                                        InkWell(
-                                          borderRadius: BorderRadius.circular(6),
-                                          onTap: () => _showChangeRestDialog(
-                                              index, item.tempsRepos),
-                                          child: const Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 4),
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.edit,
-                                                    size: 14,
-                                                    color: AppColors.primary),
-                                                SizedBox(width: 4),
-                                                Text(
-                                                  'Modifier',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: AppColors.primary,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.timer_outlined,
+                                                size: 18, color: AppColors.primary),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                'Repos : ${_formatDuration(item.tempsRepos)}',
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w700,
                                                 ),
-                                              ],
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                        const SizedBox(width: 8),
-                                        InkWell(
-                                          borderRadius: BorderRadius.circular(6),
-                                          onTap: () => _startTimer(
-                                              item.tempsRepos, exerciseName),
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              color: AppColors.primary
-                                                  .withValues(alpha: 0.15),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            InkWell(
                                               borderRadius:
-                                                  BorderRadius.circular(6),
-                                            ),
-                                            child: const Row(
-                                              children: [
-                                                Icon(Icons.play_arrow,
-                                                    size: 14,
-                                                    color: AppColors.primary),
-                                                SizedBox(width: 2),
-                                                Text(
-                                                  'Démarrer repos',
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w800,
-                                                    color: AppColors.primary,
-                                                  ),
+                                              BorderRadius.circular(6),
+                                              onTap: () => _showChangeRestDialog(
+                                                  index, item.tempsRepos),
+                                              child: const Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 6, vertical: 4),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(Icons.edit,
+                                                        size: 14,
+                                                        color: AppColors.primary),
+                                                    SizedBox(width: 4),
+                                                    Text(
+                                                      'Modifier',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: AppColors.primary,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
+                                              ),
                                             ),
-                                          ),
-                                        ),
+                                            const SizedBox(width: 8),
+                                            InkWell(
+                                              borderRadius:
+                                              BorderRadius.circular(6),
+                                              onTap: () => _startTimer(
+                                                  item.tempsRepos, exerciseName),
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 8, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.primary
+                                                      .withValues(alpha: 0.15),
+                                                  borderRadius:
+                                                  BorderRadius.circular(6),
+                                                ),
+                                                child: const Row(
+                                                  children: [
+                                                    Icon(Icons.play_arrow,
+                                                        size: 14,
+                                                        color: AppColors.primary),
+                                                    SizedBox(width: 2),
+                                                    Text(
+                                                      'Démarrer repos',
+                                                      style: TextStyle(
+                                                        fontSize: 11,
+                                                        fontWeight: FontWeight.w800,
+                                                        color: AppColors.primary,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
                                       ],
                                     ),
                                   ),
@@ -765,15 +817,15 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                     children: [
                                       Expanded(
                                         flex: 2,
-                                        child: Text('SÉRIE',
+                                        child: Text('Série',
                                             style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w700,
                                                 color: AppColors.textMuted)),
                                       ),
                                       Expanded(
-                                        flex: 3,
-                                        child: Text('CHARGE',
+                                        flex: 2,
+                                        child: Text('Charge',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                                 fontSize: 11,
@@ -782,7 +834,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                       ),
                                       Expanded(
                                         flex: 3,
-                                        child: Text('REPS',
+                                        child: Text('Reps',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                                 fontSize: 11,
@@ -790,8 +842,8 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                                 color: AppColors.textMuted)),
                                       ),
                                       Expanded(
-                                        flex: 3,
-                                        child: Text('ACTIONS',
+                                        flex: 4,
+                                        child: Text('Actions',
                                             textAlign: TextAlign.right,
                                             style: TextStyle(
                                                 fontSize: 11,
@@ -805,12 +857,13 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                   // Sets Rows
                                   if (item.series.isEmpty)
                                     const Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 8),
                                       child: Text(
                                         'Aucune série. Cliquez sur "+ Ajouter une série".',
                                         style: TextStyle(
                                             color: AppColors.textMuted,
-                                            fontSize: 13),
+                                            fontSize: 11),
                                       ),
                                     )
                                   else
@@ -844,6 +897,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                               child: Text(
                                                 'N°${serie.numero}',
                                                 style: TextStyle(
+                                                  fontSize: 11,
                                                   fontWeight: FontWeight.w800,
                                                   color: isDone
                                                       ? AppColors.primary
@@ -852,13 +906,13 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                               ),
                                             ),
                                             Expanded(
-                                              flex: 3,
+                                              flex: 2,
                                               child: Text(
                                                 '${serie.charge} kg',
                                                 textAlign: TextAlign.center,
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.w700,
-                                                  fontSize: 15,
+                                                  fontSize: 11,
                                                 ),
                                               ),
                                             ),
@@ -869,12 +923,12 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                                 textAlign: TextAlign.center,
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.w700,
-                                                  fontSize: 15,
+                                                  fontSize: 11,
                                                 ),
                                               ),
                                             ),
                                             Expanded(
-                                              flex: 3,
+                                              flex: 4,
                                               child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.end,
@@ -885,7 +939,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                                         _editSet(index, sIndex),
                                                     child: const Padding(
                                                       padding:
-                                                          EdgeInsets.all(4),
+                                                          EdgeInsets.all(3),
                                                       child: Icon(
                                                           Icons.edit_outlined,
                                                           size: 18,
@@ -900,7 +954,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                                             index, sIndex),
                                                     child: const Padding(
                                                       padding:
-                                                          EdgeInsets.all(4),
+                                                          EdgeInsets.all(3),
                                                       child: Icon(
                                                           Icons.close_rounded,
                                                           size: 18,
@@ -908,7 +962,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                                               .textMuted),
                                                     ),
                                                   ),
-                                                  const SizedBox(width: 4),
+                                                  const SizedBox(width: 3),
                                                   // Validate / Toggle completed set
                                                   GestureDetector(
                                                     onTap: () {
@@ -926,10 +980,9 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                                       });
                                                     },
                                                     child: Container(
-                                                      width: 32,
-                                                      height: 32,
-                                                      decoration:
-                                                          BoxDecoration(
+                                                      width: 30,
+                                                      height: 30,
+                                                      decoration: BoxDecoration(
                                                         color: isDone
                                                             ? AppColors.primary
                                                             : AppColors
@@ -969,6 +1022,9 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                     width: double.infinity,
                                     child: OutlinedButton.icon(
                                       style: OutlinedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 10),
                                         side: const BorderSide(
@@ -981,6 +1037,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                                       label: const Text(
                                         'Ajouter une série',
                                         style: TextStyle(
+                                          fontSize: 12,
                                           color: AppColors.primary,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -1015,7 +1072,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                           foregroundColor: AppColors.onPrimary,
                           minimumSize: const Size(double.infinity, 56),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(28),
+                            borderRadius: BorderRadius.circular(18),
                           ),
                         ),
                         onPressed: draft.exercices.isEmpty ? null : _validate,
@@ -1025,9 +1082,9 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                             Icon(Icons.flag, size: 22),
                             SizedBox(width: 10),
                             Text(
-                              'VALIDER ET TERMINER LA SÉANCE',
+                              'Valider et terminé la séance',
                               style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: 0.8,
                               ),
@@ -1039,8 +1096,8 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                       const Text(
                         'Toutes les séries, charges et répétitions seront sauvegardées dans votre historique.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: AppColors.textMuted, fontSize: 12),
+                        style:
+                            TextStyle(color: AppColors.textMuted, fontSize: 11),
                       ),
                     ],
                   ),
@@ -1086,7 +1143,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1097,18 +1154,22 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                     Text(
                       _formatDuration(_timerRemaining),
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 12,
                         fontWeight: FontWeight.w900,
                         color: AppColors.primary,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _timerIsRunning ? '⚡ REPOS EN COURS' : '⏸ EN PAUSE',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textMuted,
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        _timerIsRunning ? '⚡ REPOS' : '⏸ EN PAUSE',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textMuted,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -1117,36 +1178,43 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                   Text(
                     _timerExerciseName!,
                     style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w600),
+                        fontSize: 11, fontWeight: FontWeight.w600),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
               ],
             ),
           ),
-          IconButton(
-            constraints: const BoxConstraints(),
-            padding: const EdgeInsets.all(6),
-            onPressed: _timerIsRunning ? _pauseTimer : _resumeTimer,
-            icon: Icon(
-              _timerIsRunning ? Icons.pause_circle : Icons.play_circle,
-              color: AppColors.primary,
-              size: 28,
-            ),
-          ),
-          IconButton(
-            constraints: const BoxConstraints(),
-            padding: const EdgeInsets.all(6),
-            onPressed: () => _adjustTimer(30),
-            icon: const Icon(Icons.add_alarm,
-                color: AppColors.primary, size: 22),
-            tooltip: '+30s',
-          ),
-          IconButton(
-            constraints: const BoxConstraints(),
-            padding: const EdgeInsets.all(6),
-            onPressed: _resetTimer,
-            icon: const Icon(Icons.close, color: AppColors.textMuted, size: 20),
+          const SizedBox(width: 6),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                constraints: const BoxConstraints(),
+                padding: const EdgeInsets.all(4),
+                onPressed: _timerIsRunning ? _pauseTimer : _resumeTimer,
+                icon: Icon(
+                  _timerIsRunning ? Icons.pause_circle : Icons.play_circle,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+              IconButton(
+                constraints: const BoxConstraints(),
+                padding: const EdgeInsets.all(4),
+                onPressed: () => _adjustTimer(30),
+                icon: const Icon(Icons.add_alarm,
+                    color: AppColors.primary, size: 20),
+                tooltip: '+30s',
+              ),
+              IconButton(
+                constraints: const BoxConstraints(),
+                padding: const EdgeInsets.all(4),
+                onPressed: _resetTimer,
+                icon: const Icon(Icons.close,
+                    color: AppColors.textMuted, size: 20),
+              ),
+            ],
           ),
         ],
       ),
@@ -1172,7 +1240,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                   Icon(Icons.timer, color: AppColors.primary, size: 20),
                   SizedBox(width: 8),
                   Text(
-                    'MINUTEUR DE REPOS',
+                    'Minuteur de repos',
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 13,
@@ -1186,8 +1254,8 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                 Text(
                   _timerIsRunning ? 'En cours...' : 'En pause',
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w100,
                     color: _timerIsRunning
                         ? AppColors.primary
                         : AppColors.textMuted,
@@ -1232,7 +1300,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                           : 'Temps de repos entre séries',
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
-                        fontSize: 15,
+                        fontSize: 12,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1259,37 +1327,61 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
             children: [
               if (_timerRemaining > 0) ...[
                 IconButton.filledTonal(
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.all(6),
+                  iconSize: 18,
                   onPressed: _timerIsRunning ? _pauseTimer : _resumeTimer,
                   icon: Icon(_timerIsRunning ? Icons.pause : Icons.play_arrow),
                 ),
                 const SizedBox(width: 6),
                 IconButton.outlined(
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.all(6),
+                  iconSize: 18,
                   onPressed: _resetTimer,
                   icon: const Icon(Icons.replay),
                 ),
                 const SizedBox(width: 6),
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                ActionChip(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
+                  label: const Text(
+                    '-10s',
+                    style: TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w600),
                   ),
                   onPressed: () => _adjustTimer(-10),
-                  child: const Text('-10s'),
                 ),
                 const SizedBox(width: 6),
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                ActionChip(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
+                  label: const Text(
+                    '+15s',
+                    style: TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w600),
                   ),
                   onPressed: () => _adjustTimer(15),
-                  child: const Text('+15s'),
                 ),
                 const SizedBox(width: 6),
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                ActionChip(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
+                  label: const Text(
+                    '+30s',
+                    style: TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w600),
                   ),
                   onPressed: () => _adjustTimer(30),
-                  child: const Text('+30s'),
                 ),
               ] else ...[
                 // Presets when timer is stopped
@@ -1301,7 +1393,16 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                         return Padding(
                           padding: const EdgeInsets.only(right: 6),
                           child: ActionChip(
-                            label: Text('${sec}s'),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            label: Text(
+                              '${sec}s',
+                              style: const TextStyle(
+                                  fontSize: 11, fontWeight: FontWeight.w600),
+                            ),
                             onPressed: () => _startTimer(sec, 'Repos rapide'),
                           ),
                         );
@@ -1357,9 +1458,13 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
 // --- Add Exercise Dialog with multi-set & rest time config ---
 
 class _AddExerciseDialog extends StatefulWidget {
-  const _AddExerciseDialog({required this.exercises});
+  const _AddExerciseDialog({
+    required this.exercises,
+    this.history = const [],
+  });
 
   final List<ExerciceModel> exercises;
+  final List<SeanceModel> history;
 
   @override
   State<_AddExerciseDialog> createState() => _AddExerciseDialogState();
@@ -1376,6 +1481,33 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
   void initState() {
     super.initState();
     _selectedId = widget.exercises.isNotEmpty ? widget.exercises.first.id : '';
+    if (_selectedId.isNotEmpty) {
+      _updatePrefillForExercise(_selectedId);
+    }
+  }
+
+  void _updatePrefillForExercise(String exerciseId) {
+    ExerciceModel? ex;
+    for (final item in widget.exercises) {
+      if (item.id == exerciseId || item.uuid == exerciseId) {
+        ex = item;
+        break;
+      }
+    }
+
+    final ids =
+        ex != null ? [ex.id, if (ex.uuid.isNotEmpty) ex.uuid] : [exerciseId];
+
+    final lastSeries = LastSets.forExercise(ids, widget.history);
+    final top = lastSeries != null ? LastSets.topSet(lastSeries) : null;
+
+    if (top != null) {
+      _repsController.text = top.repetitions.toString();
+      _chargeController.text = LastSets.formatKg(top.charge);
+    } else {
+      _repsController.text = '10';
+      _chargeController.text = '0';
+    }
   }
 
   @override
@@ -1390,7 +1522,8 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
     if (widget.exercises.isEmpty) {
       return AlertDialog(
         title: const Text('Ajouter un exercice'),
-        content: const Text('Aucun exercice disponible dans la base de données.'),
+        content:
+            const Text('Aucun exercice disponible dans la base de données.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -1404,6 +1537,33 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
     final validSelection = widget.exercises.any((e) => e.id == _selectedId)
         ? _selectedId
         : widget.exercises.first.id;
+
+    ExerciceModel? selectedEx;
+    for (final item in widget.exercises) {
+      if (item.id == validSelection || item.uuid == validSelection) {
+        selectedEx = item;
+        break;
+      }
+    }
+
+    final ids = selectedEx != null
+        ? [selectedEx.id, if (selectedEx.uuid.isNotEmpty) selectedEx.uuid]
+        : [validSelection];
+
+    final lastSeries = LastSets.forExercise(ids, widget.history);
+    String? hintText;
+    if (lastSeries != null && lastSeries.isNotEmpty) {
+      final summary = LastSets.summarize(lastSeries);
+      final bestOneRm = OneRepMax.bestOfSets(lastSeries);
+      if (summary.isNotEmpty) {
+        if (bestOneRm != null) {
+          hintText =
+              'Dernière séance : $summary · 1RM estimé ≈ ${LastSets.formatKg(bestOneRm.value)} kg';
+        } else {
+          hintText = 'Dernière séance : $summary';
+        }
+      }
+    }
 
     return AlertDialog(
       title: const Text('Ajouter un exercice'),
@@ -1430,10 +1590,27 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
                   .toList(),
               onChanged: (value) {
                 if (value != null) {
-                  setState(() => _selectedId = value);
+                  setState(() {
+                    _selectedId = value;
+                    _updatePrefillForExercise(value);
+                  });
                 }
               },
             ),
+            const SizedBox(height: 12),
+            ExerciseDemo(
+              key: ValueKey(validSelection),
+              exerciseId: validSelection,
+              height: 140,
+            ),
+            if (hintText != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                hintText,
+                style:
+                    const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              ),
+            ],
             const SizedBox(height: 12),
             Row(
               children: [
@@ -1711,8 +1888,10 @@ class _EditSetDialogState extends State<_EditSetDialog> {
           ),
           FilledButton(
             onPressed: () {
-              final reps = int.tryParse(_repsController.text) ?? widget.initialReps;
-              final charge = double.tryParse(_chargeController.text) ?? widget.initialCharge;
+              final reps =
+                  int.tryParse(_repsController.text) ?? widget.initialReps;
+              final charge = double.tryParse(_chargeController.text) ??
+                  widget.initialCharge;
               Navigator.pop(
                 context,
                 SerieModel(

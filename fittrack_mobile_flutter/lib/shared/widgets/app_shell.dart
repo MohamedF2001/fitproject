@@ -11,41 +11,59 @@ class AppPersistentShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: (index) {
-          navigationShell.goBranch(
-            index,
-            initialLocation: index == navigationShell.currentIndex,
-          );
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Accueil',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month_outlined),
-            selectedIcon: Icon(Icons.calendar_month),
-            label: 'Programmes',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.fitness_center),
-            selectedIcon: Icon(Icons.fitness_center),
-            label: 'Séances',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.track_changes_outlined),
-            selectedIcon: Icon(Icons.track_changes),
-            label: 'Objectifs',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-        ],
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const TextStyle(
+                fontSize: 8,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              );
+            }
+            return const TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textMuted,
+            );
+          }),
+        ),
+        child: NavigationBar(
+          selectedIndex: navigationShell.currentIndex,
+          onDestinationSelected: (index) {
+            navigationShell.goBranch(
+              index,
+              initialLocation: index == navigationShell.currentIndex,
+            );
+          },
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Accueil',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.calendar_month_outlined),
+              selectedIcon: Icon(Icons.calendar_month),
+              label: 'Programmes',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.fitness_center),
+              selectedIcon: Icon(Icons.fitness_center),
+              label: 'Séances',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.track_changes_outlined),
+              selectedIcon: Icon(Icons.track_changes),
+              label: 'Objectifs',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
+              label: 'Profil',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -103,7 +121,7 @@ class SectionTitle extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.titleSmall,
             ),
           ),
           if (action != null) action!

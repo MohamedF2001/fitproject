@@ -19,6 +19,7 @@ class _FormPageState extends ConsumerState<_FormPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _busy = false;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -52,7 +53,7 @@ class _FormPageState extends ConsumerState<_FormPage> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.screen),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 460),
+                constraints: const BoxConstraints(maxWidth: 420),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -60,63 +61,109 @@ class _FormPageState extends ConsumerState<_FormPage> {
                     children: [
                       Center(
                         child: Container(
-                          width: 76,
-                          height: 76,
+                          width: 60,
+                          height: 60,
                           decoration: BoxDecoration(
                             color: AppColors.surface2,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Icon(
                             Icons.bolt,
                             color: AppColors.primary,
-                            size: 44,
+                            size: 34,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 18),
                       Text(
                         widget.register
                             ? 'Crée ton espace athlète'
                             : 'Content de te revoir',
-                        style: Theme.of(context).textTheme.headlineMedium,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.text,
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         widget.register
                             ? 'Ton entraînement, tes objectifs, ton rythme.'
                             : 'Prêt à reprendre là où tu t’es arrêté ?',
-                        style: const TextStyle(color: AppColors.textMuted),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textMuted,
+                        ),
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 20),
                       AppCard(
+                        padding: const EdgeInsets.all(14),
                         child: Column(
                           children: [
                             TextFormField(
                               controller: _email,
                               keyboardType: TextInputType.emailAddress,
+                              style: const TextStyle(fontSize: 13),
                               decoration: const InputDecoration(
                                 labelText: 'Adresse email',
-                                prefixIcon: Icon(Icons.alternate_email),
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                labelStyle: TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.textMuted,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.alternate_email,
+                                  size: 18,
+                                ),
                               ),
                               validator: (value) =>
                                   value != null && value.contains('@')
                                       ? null
                                       : 'Adresse email invalide',
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 10),
                             TextFormField(
                               controller: _password,
-                              obscureText: true,
-                              decoration: const InputDecoration(
+                              obscureText: _obscurePassword,
+                              style: const TextStyle(fontSize: 13),
+                              decoration: InputDecoration(
                                 labelText: 'Mot de passe',
-                                prefixIcon: Icon(Icons.lock_outline),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                labelStyle: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.textMuted,
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.lock_outline,
+                                  size: 18,
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    size: 18,
+                                    color: AppColors.textMuted,
+                                  ),
+                                  onPressed: () => setState(
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
+                                ),
                               ),
                               validator: (value) =>
                                   value != null && value.length >= 6
                                       ? null
                                       : '6 caractères minimum',
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 16),
                             AppButton(
                               label: widget.register
                                   ? 'Créer mon compte'
@@ -127,7 +174,7 @@ class _FormPageState extends ConsumerState<_FormPage> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 14),
                       Center(
                         child: TextButton(
                           onPressed: _busy
@@ -139,6 +186,7 @@ class _FormPageState extends ConsumerState<_FormPage> {
                             widget.register
                                 ? 'J’ai déjà un compte'
                                 : 'Créer un compte',
+                            style: const TextStyle(fontSize: 13),
                           ),
                         ),
                       ),

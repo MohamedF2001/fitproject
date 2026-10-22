@@ -175,8 +175,12 @@ class _CreateProgramPageState extends ConsumerState<CreateProgramPage> {
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.calendar_today,
                             color: AppColors.primary),
-                        title: Text(day.jour),
-                        subtitle: Text('${day.exercices.length} exercice(s)'),
+                        title: Text(
+                          style: TextStyle(fontSize: 12),
+                            day.jour),
+                        subtitle: Text(
+                          style: const TextStyle(fontSize: 12),
+                            '${day.exercices.length} exercice(s)'),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -239,7 +243,7 @@ class _CreateProgramPageState extends ConsumerState<CreateProgramPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Exercices pour $_selectedDay',
+                            'Exercices / $_selectedDay',
                             style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
                           Text(

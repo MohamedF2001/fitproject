@@ -152,7 +152,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
               children: [
                 Expanded(
                   child: _buildStatCard(
-                    title: 'SÉANCES',
+                    title: 'Séances\n',
                     value: '${validatedWorkouts.length}',
                     subtitle: 'Validées',
                     icon: Icons.fitness_center,
@@ -161,7 +161,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                 const SizedBox(width: 10),
                 Expanded(
                   child: _buildStatCard(
-                    title: 'VOLUME TOTAL',
+                    title: 'Volume \n''total',
                     value: totalVolumeAllTime >= 1000
                         ? '${(totalVolumeAllTime / 1000).toStringAsFixed(1)} t'
                         : '${totalVolumeAllTime.toInt()} kg',
@@ -172,7 +172,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                 const SizedBox(width: 10),
                 Expanded(
                   child: _buildStatCard(
-                    title: 'SÉRIES',
+                    title: 'Séries\n',
                     value: '$totalSetsAllTime',
                     subtitle: 'Effectuées',
                     icon: Icons.repeat,
@@ -197,7 +197,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                           color: AppColors.primary, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        'RÉSUMÉ DES PERFORMANCES',
+                        'Résumé des performances',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -222,11 +222,11 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                         ? '${(totalVolumeAllTime / validatedWorkouts.length).toStringAsFixed(0)} kg'
                         : '0 kg',
                   ),
-                  const Divider(height: 16),
-                  _buildSummaryRow(
-                    label: 'Statut de synchronisation',
-                    value: 'En direct avec l\'API',
-                  ),
+                  // const Divider(height: 16),
+                  // _buildSummaryRow(
+                  //   label: 'Statut de synchronisation',
+                  //   value: 'En direct avec l\'API',
+                  // ),
                 ],
               ),
             ),
@@ -288,11 +288,11 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+          style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
         ),
         Text(
           value,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -345,15 +345,15 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                           const SizedBox(width: 8),
                           Text(
                             workout.valideeLe != null
-                                ? DateFormat('EEEE dd MMMM yyyy', 'fr')
+                                ? DateFormat('EEEE dd/MM/yyyy', 'fr')
                                     .format(workout.valideeLe!)
                                 : (workout.date != null
-                                    ? DateFormat('EEEE dd MMMM yyyy', 'fr')
+                                    ? DateFormat('EEEE dd/MM/yyyy', 'fr')
                                         .format(workout.date!)
                                     : 'Séance validée'),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: 12,
                             ),
                           ),
                         ],
@@ -369,7 +369,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'EXERCICES',
+                            'Exercices',
                             style: TextStyle(
                               fontSize: 10,
                               color: AppColors.textMuted,
@@ -379,7 +379,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                           Text(
                             '${workout.exercices.length}',
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -389,7 +389,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'SÉRIES TOTALES',
+                            'Séries totales',
                             style: TextStyle(
                               fontSize: 10,
                               color: AppColors.textMuted,
@@ -399,7 +399,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                           Text(
                             '$setsCount',
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -409,7 +409,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           const Text(
-                            'VOLUME SÉANCE',
+                            'Volume Séance',
                             style: TextStyle(
                               fontSize: 10,
                               color: AppColors.textMuted,
@@ -419,7 +419,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                           Text(
                             '${volume.toInt()} kg',
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.w900,
                               color: AppColors.primary,
                             ),
@@ -470,11 +470,13 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage>
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.emoji_events,
-                          color: AppColors.primary, size: 24),
+                          color: AppColors.primary, size: 18),
                     ),
                     title: Text(
                       achievement.description,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 14,
+                          fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
                       achievement.dateObtention == null
@@ -538,7 +540,7 @@ class _VolumeTrendChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Row(
@@ -546,7 +548,7 @@ class _VolumeTrendChart extends StatelessWidget {
                   Icon(Icons.show_chart, color: AppColors.primary, size: 20),
                   SizedBox(width: 8),
                   Text(
-                    'PROGRESSION DU VOLUME (KG)',
+                    'Progression du volume (kg)',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
@@ -559,7 +561,7 @@ class _VolumeTrendChart extends StatelessWidget {
               Text(
                 '${recent.length} séance${recent.length > 1 ? 's' : ''}',
                 style: const TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   color: AppColors.textMuted,
                   fontWeight: FontWeight.bold,
                 ),

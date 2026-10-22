@@ -72,7 +72,7 @@ class PoidsEvolutionGraphWidget extends StatelessWidget {
                   Icon(Icons.monitor_weight_outlined, color: AppColors.primary, size: 18),
                   SizedBox(width: 8),
                   Text(
-                    'ÉVOLUTION DU POIDS',
+                    'Évolution du poids',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
@@ -232,7 +232,7 @@ class ChargeEvolutionGraphWidget extends StatelessWidget {
                   Icon(Icons.trending_up, color: AppColors.secondary, size: 20),
                   SizedBox(width: 8),
                   Text(
-                    'PROGRESSION DES CHARGES',
+                    'Progression charge',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,

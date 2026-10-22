@@ -37,6 +37,12 @@ class LocalStorage {
   }
 
   String? get token => _get(AppConstants.tokenKey) as String?;
+  bool get hasSeenOnboarding => (_get('has_seen_onboarding') as bool?) ?? false;
+
+  Future<void> setHasSeenOnboarding(bool value) async {
+    await _put('has_seen_onboarding', value);
+  }
+
   UserModel? get user {
     final raw = _get(AppConstants.userKey) as String?;
     return raw == null ? null : UserModel.fromJson(jsonDecode(raw));
