@@ -195,7 +195,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           Text(
                             '${user?.prenom ?? ''} ${user?.nom ?? ''}'.trim().isNotEmpty
                                 ? '${user?.prenom ?? ''} ${user?.nom ?? ''}'
-                                : 'Membre Kinetic Fit',
+                                : 'Membre Fittrack',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
