@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import connectDB from "../config/db.js";
 
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
@@ -9,6 +10,7 @@ const generateToken = (userId) => {
 
 export const register = async (req, res) => {
   try {
+    await connectDB();
     const { email, motDePasse } = req.body;
 
     if (!email || !motDePasse) {
@@ -33,6 +35,7 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
+    await connectDB();
     const { email, motDePasse } = req.body;
 
     if (!email || !motDePasse) {
@@ -61,6 +64,7 @@ export const login = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
+    await connectDB();
     const user = await User.findById(req.userId);
     if (!user) {
       return res.status(404).json({ message: "❌ Utilisateur introuvable" });
@@ -74,6 +78,7 @@ export const getProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
+    await connectDB();
     const { nom, prenom, poids, taille } = req.body;
 
     const user = await User.findById(req.userId);

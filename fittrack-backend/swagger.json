@@ -107,6 +107,31 @@
           "actif": { "type": "boolean", "example": true }
         }
       },
+      "ProgrammeProposalRequest": {
+        "type": "object",
+        "required": ["joursParSemaine", "niveau"],
+        "properties": {
+          "joursParSemaine": { "type": "integer", "minimum": 1, "maximum": 7, "example": 3 },
+          "niveau": { "type": "string", "enum": ["debutant", "intermediaire", "avance"] },
+          "objectif": { "type": "string", "maxLength": 500, "example": "Gagner en force" },
+          "equipement": { "type": "string", "maxLength": 300, "example": "Haltères et banc" }
+        }
+      },
+      "ProgrammeProposalResponse": {
+        "type": "object",
+        "required": ["proposition"],
+        "properties": {
+          "proposition": {
+            "type": "object",
+            "required": ["nom", "justification", "jours"],
+            "properties": {
+              "nom": { "type": "string" },
+              "justification": { "type": "string" },
+              "jours": { "type": "array", "items": { "$ref": "#/components/schemas/Jour" } }
+            }
+          }
+        }
+      },
       "Serie": {
         "type": "object",
         "properties": {
@@ -344,6 +369,25 @@
         "security": [{ "bearerAuth": [] }],
         "responses": {
           "200": { "description": "Liste des programmes", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Programme" } } } } }
+        }
+      }
+    },
+    "/programmes/proposition": {
+      "post": {
+        "tags": ["Programmes"],
+        "summary": "Générer une proposition de programme avec le modèle IA configuré côté serveur",
+        "description": "Appelle l’API Gemini avec GEMINI_API_KEY et GEMINI_MODEL. Le programme retourné n'est pas enregistré ; l'utilisateur peut le modifier puis l'enregistrer avec POST /programmes.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProgrammeProposalRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Proposition basée sur le profil, les objectifs et le catalogue", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProgrammeProposalResponse" } } } },
+          "400": { "description": "Paramètres de génération invalides", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "429": { "description": "Quota ou limite Gemini atteint", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "502": { "description": "Réponse du modèle invalide ou indisponible", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "503": { "description": "Service IA ou catalogue indisponible", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
       }
     },

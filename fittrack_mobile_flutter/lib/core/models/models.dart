@@ -435,6 +435,46 @@ class ProgrammeInput {
       };
 }
 
+class ProgrammeProposalRequest {
+  const ProgrammeProposalRequest({
+    required this.joursParSemaine,
+    required this.niveau,
+    this.objectif = '',
+    this.equipement = '',
+  });
+  final int joursParSemaine;
+  final String niveau;
+  final String objectif;
+  final String equipement;
+
+  Map<String, dynamic> toJson() => {
+        'joursParSemaine': joursParSemaine,
+        'niveau': niveau,
+        'objectif': objectif,
+        'equipement': equipement,
+      };
+}
+
+class ProgrammeProposalModel {
+  const ProgrammeProposalModel({
+    required this.nom,
+    required this.justification,
+    required this.jours,
+  });
+  final String nom;
+  final String justification;
+  final List<JourModel> jours;
+
+  factory ProgrammeProposalModel.fromJson(Map<String, dynamic> json) =>
+      ProgrammeProposalModel(
+        nom: _string(json['nom']),
+        justification: _string(json['justification']),
+        jours: (json['jours'] as List? ?? const [])
+            .map((day) => JourModel.fromJson(_map(day)))
+            .toList(),
+      );
+}
+
 class SeanceInput {
   const SeanceInput({this.date, this.exercices = const []});
   final DateTime? date;

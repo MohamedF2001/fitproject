@@ -18,13 +18,16 @@ class _FormPageState extends ConsumerState<_FormPage> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _confirmPassword = TextEditingController();
   bool _busy = false;
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _confirmPassword.dispose();
     super.dispose();
   }
 
@@ -163,6 +166,52 @@ class _FormPageState extends ConsumerState<_FormPage> {
                                       ? null
                                       : '6 caractères minimum',
                             ),
+                            if (widget.register) ...[
+                              const SizedBox(height: 10),
+                              TextFormField(
+                                controller: _confirmPassword,
+                                obscureText: _obscureConfirmPassword,
+                                style: const TextStyle(fontSize: 13),
+                                decoration: InputDecoration(
+                                  labelText: 'Confirmer le mot de passe',
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  labelStyle: const TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.textMuted,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.lock_reset,
+                                    size: 18,
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscureConfirmPassword
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      size: 18,
+                                      color: AppColors.textMuted,
+                                    ),
+                                    onPressed: () => setState(
+                                      () => _obscureConfirmPassword =
+                                          !_obscureConfirmPassword,
+                                    ),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Veuillez confirmer le mot de passe';
+                                  }
+                                  if (value != _password.text) {
+                                    return 'Les mots de passe ne correspondent pas';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
                             const SizedBox(height: 16),
                             AppButton(
                               label: widget.register

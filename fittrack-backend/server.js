@@ -15,10 +15,12 @@ import exerciceRoutes from "./routes/exerciceRoutes.js";
 import programmeRoutes from "./routes/programmeRoutes.js";
 import seanceRoutes from "./routes/seanceRoutes.js";
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Les secrets locaux de .env.local priment sur les valeurs du .env suivi dans certains clones.
+dotenv.config({ path: path.join(__dirname, ".env.local") });
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 
@@ -73,11 +75,9 @@ app.use((req, res) => {
 // 6. Export dual : Vercel (serverless) + local
 const PORT = process.env.PORT || 3000;
 
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => {
-    console.log(`✅ Serveur FitTrack démarré sur le port ${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`✅ Serveur FitTrack démarré sur le port ${PORT}`);
+});
 
 const handler = app;
 export default handler;

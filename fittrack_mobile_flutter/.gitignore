@@ -11,3 +11,5 @@ ios/Pods/
 ios/.symlinks/
 android/.gradle/
 android/local.properties
+# Widget Preview related
+.widget_preview/

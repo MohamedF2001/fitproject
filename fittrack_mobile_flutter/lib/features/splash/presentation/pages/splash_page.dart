@@ -57,7 +57,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.black26.withValues(alpha: 8.5),
+      backgroundColor: Colors.grey[900],
       body: Center(
         child: SizedBox(
           width: screenWidth * 0.7,

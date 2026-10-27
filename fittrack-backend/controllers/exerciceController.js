@@ -4,6 +4,8 @@ export const setCatalogueExercices = (catalogue) => {
   catalogueExercices = catalogue;
 };
 
+export const getCatalogueExercices = () => catalogueExercices;
+
 export const getExercices = async (req, res) => {
   try {
     const { muscle, categorie } = req.query;

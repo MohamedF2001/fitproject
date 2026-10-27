@@ -9,8 +9,281 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../shared/widgets/app_shell.dart';
 
-class ProgramsPage extends ConsumerWidget {
+class ProgramsPage extends ConsumerStatefulWidget {
   const ProgramsPage({super.key});
+
+  @override
+  ConsumerState<ProgramsPage> createState() => _ProgramsPageState();
+}
+
+class _ProgramsPageState extends ConsumerState<ProgramsPage> {
+  bool _isAutoAdding = false;
+  bool _isGeneratingProposal = false;
+
+  Future<ProgrammeProposalRequest> _buildProposalRequestFromGoals() async {
+    int daysPerWeek = 3;
+    String level = 'debutant';
+    final objectiveParts = <String>[];
+
+    try {
+      final goals = await ref.read(goalsApiProvider).list();
+      final activeGoals = goals.where((g) => g.statut == 'en_cours').toList();
+      for (final g in activeGoals) {
+        if (g.type == 'regularite_seances' && g.valeurCible != null) {
+          daysPerWeek = g.valeurCible!.toInt().clamp(1, 7);
+        }
+        objectiveParts.add('${g.type}${g.valeurCible != null ? ' (cible: ${g.valeurCible})' : ''}');
+      }
+    } catch (_) {}
+
+    final objectifText = objectiveParts.isNotEmpty
+        ? objectiveParts.join(', ')
+        : 'forme générale et progression régulière';
+
+    return ProgrammeProposalRequest(
+      joursParSemaine: daysPerWeek,
+      niveau: level,
+      objectif: objectifText,
+      equipement: 'matériel standard de salle / poids du corps',
+    );
+  }
+
+  Future<void> _autoAddProgram() async {
+    if (_isAutoAdding) return;
+
+    // 1. Check if user has active goals
+    try {
+      final goals = await ref.read(goalsApiProvider).list();
+      final activeGoals = goals.where((g) => g.statut == 'en_cours').toList();
+      if (activeGoals.isEmpty) {
+        if (!mounted) return;
+        await showDialog(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.flag_outlined, color: AppColors.primary),
+                SizedBox(width: 8),
+                Text('Objectif requis'),
+              ],
+            ),
+            content: const Text(
+              'Vous devez d’abord définir au moins un objectif fitness en cours avant de pouvoir générer un programme automatique en fonction de vos objectifs.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Annuler'),
+              ),
+              FilledButton.icon(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  context.push('/goals');
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Définir un objectif'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+    } catch (_) {}
+
+    setState(() => _isAutoAdding = true);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 20),
+            Expanded(
+              child: Text(
+                'Génération automatique de votre programme en cours, veuillez patienter...',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final request = await _buildProposalRequestFromGoals();
+      final proposal = await ref.read(programsApiProvider).propose(request);
+      if (!mounted) return;
+
+      final currentPrograms = await ref.read(programsApiProvider).list();
+      if (currentPrograms.isEmpty) {
+        await ref.read(programsApiProvider).create(
+              ProgrammeInput(
+                nom: proposal.nom.isNotEmpty ? proposal.nom : 'Programme sur mesure',
+                jours: proposal.jours,
+                actif: true,
+              ),
+            );
+      }
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // dismiss loading dialog
+      ref.invalidate(programsProvider);
+      ref.invalidate(activeProgramProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Programme généré et ajouté avec succès !')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // dismiss loading dialog
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la génération : $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isAutoAdding = false);
+      }
+    }
+  }
+
+  Future<void> _showProgramProposalDialog() async {
+    setState(() => _isGeneratingProposal = true);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 20),
+            Expanded(
+              child: Text(
+                'Proposition de programme en cours, veuillez patienter...',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final request = await _buildProposalRequestFromGoals();
+      final proposal = await ref.read(programsApiProvider).propose(request);
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // dismiss loading dialog
+      setState(() => _isGeneratingProposal = false);
+
+      await showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.auto_awesome, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Expanded(child: Text(proposal.nom)),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Proposition basée sur vos objectifs :',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  proposal.justification,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Planning (${proposal.jours.length} jours) :',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                const SizedBox(height: 6),
+                ...proposal.jours.map((jour) => Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        '• ${jour.jour} (${jour.exercices.length} exercices)',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    )),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Annuler'),
+            ),
+            FilledButton.icon(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const AlertDialog(
+                    content: Row(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(width: 20),
+                        Expanded(
+                          child: Text(
+                            'Enregistrement du programme en cours...',
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+
+                final result = await executeApi(
+                  () => ref.read(programsApiProvider).create(
+                        ProgrammeInput(
+                          nom: proposal.nom,
+                          jours: proposal.jours,
+                          actif: false,
+                        ),
+                      ),
+                  ref.read(dioClientProvider),
+                );
+
+                if (!mounted) return;
+                Navigator.of(context, rootNavigator: true).pop(); // dismiss saving dialog
+
+                if (result.isSuccess) {
+                  ref.invalidate(programsProvider);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Programme suggéré enregistré en réserve !')),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(result.failure!.message)),
+                  );
+                }
+              },
+              icon: const Icon(Icons.save),
+              label: const Text('Enregistrer'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // dismiss loading dialog if open
+      setState(() => _isGeneratingProposal = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la suggestion : $e')),
+      );
+    }
+  }
 
   Future<void> _delete(
     BuildContext context,
@@ -63,7 +336,7 @@ class ProgramsPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => AppShell(
+  Widget build(BuildContext context) => AppShell(
         title: 'Programmes',
         action: IconButton(
           onPressed: () => context.push('/programs/create'),
@@ -77,12 +350,81 @@ class ProgramsPage extends ConsumerWidget {
               ),
               data: (programs) {
                 if (programs.isEmpty) {
-                  return EmptyState(
-                    title: 'Crée ton premier programme',
-                    action: FilledButton.icon(
-                      onPressed: () => context.push('/programs/create'),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Créer un programme'),
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.screen),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.fitness_center_outlined,
+                              size: 48,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Aucun programme actif',
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.text,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Cliquez sur le bouton ci-dessous pour générer automatiquement votre programme d’entraînement en fonction de vos objectifs.',
+                            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            child:
+                            AppButton(
+                              label: 'Générer mon programme',
+                              icon: Icons.check,
+                              onPressed: _isAutoAdding ? null : _autoAddProgram,
+                            ),
+                            /*FilledButton.icon(
+                              style: FilledButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              onPressed: _isAutoAdding ? null : _autoAddProgram,
+                              icon: const Icon(Icons.auto_awesome),
+                              label: const Text('Générer mon programme'),
+                            ),*/
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child:
+                            AppButtonOutlined(
+                              label: 'Créer un programme manuellement',
+                              icon: Icons.add,
+                              onPressed: () => context.push('/programs/create'),
+                            ),
+                            /*OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              onPressed: () => context.push('/programs/create'),
+                              icon: const Icon(Icons.add),
+                              label: const Text('Créer un programme manuellement'),
+                            ),*/
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }
@@ -98,6 +440,44 @@ class ProgramsPage extends ConsumerWidget {
                     100,
                   ),
                   children: [
+                    // Suggestion Card based on goals
+                    AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.auto_awesome, color: AppColors.primary),
+                              const SizedBox(width: 8),
+                              const Expanded(
+                                child: Text(
+                                  'Suggestion de programme',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                ),
+                              ),
+                              if (_isGeneratingProposal)
+                                const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Besoin de changement ? Obtenez une nouvelle proposition sur mesure basée sur vos objectifs actuels.',
+                            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: _isGeneratingProposal ? null : _showProgramProposalDialog,
+                              icon: const Icon(Icons.lightbulb_outline),
+                              label: const Text('Suggérer un nouveau programme'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
                     // Section Header
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,11 +503,6 @@ class ProgramsPage extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        /*FilledButton.tonalIcon(
-                          onPressed: () => context.push('/programs/create'),
-                          icon: const Icon(Icons.add, size: 18),
-                          label: const Text('Créer'),
-                        ),*/
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -152,7 +527,6 @@ class ProgramsPage extends ConsumerWidget {
                     // Reserve Programs Section
                     if (reservePrograms.isNotEmpty) ...[
                       Column(
-                        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
                             'Autres programmes en réserve',
@@ -293,10 +667,10 @@ class ProgramsPage extends ConsumerWidget {
                     ),
                   ),
                   onPressed: () => context.push('/programs/create', extra: program),
-                  //icon: const Icon(Icons.edit_outlined, size: 18),
                   label: const Text(
                     style: TextStyle(fontSize: 12),
-                      'Modifier'),
+                    'Modifier',
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -308,10 +682,10 @@ class ProgramsPage extends ConsumerWidget {
                     ),
                   ),
                   onPressed: () => context.go('/workouts'),
-                  //icon: const Icon(Icons.play_arrow, size: 18),
                   label: const Text(
                     style: TextStyle(fontSize: 12),
-                      'Séances'),
+                    'Séances',
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -345,7 +719,8 @@ class ProgramsPage extends ConsumerWidget {
                     icon: const Icon(Icons.swap_horiz, size: 18),
                     label: const Text(
                       style: TextStyle(fontSize: 11),
-                        'Définir comme actif'),
+                      'Définir comme actif',
+                    ),
                   ),
                 ],
               ),

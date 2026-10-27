@@ -1,9 +1,11 @@
 import Seance from "../models/Seance.js";
 import User from "../models/User.js";
 import { checkGoals } from "../utils/goalsChecker.js";
+import connectDB from "../config/db.js";
 
 export const createSeance = async (req, res) => {
   try {
+    await connectDB();
     const { date, exercices } = req.body;
 
     const seance = await Seance.create({
@@ -24,6 +26,7 @@ export const createSeance = async (req, res) => {
 
 export const getSeances = async (req, res) => {
   try {
+    await connectDB();
     const seances = await Seance.find({ utilisateur: req.userId }).populate("utilisateur");
     return res.status(200).json(seances);
   } catch (error) {
@@ -34,6 +37,7 @@ export const getSeances = async (req, res) => {
 
 export const getSeanceById = async (req, res) => {
   try {
+    await connectDB();
     const seance = await Seance.findOne({ _id: req.params.id, utilisateur: req.userId }).populate("utilisateur");
     if (!seance) {
       return res.status(404).json({ message: "❌ Séance introuvable" });
@@ -47,6 +51,7 @@ export const getSeanceById = async (req, res) => {
 
 export const updateSeance = async (req, res) => {
   try {
+    await connectDB();
     const { date, exercices } = req.body;
 
     const seance = await Seance.findOne({ _id: req.params.id, utilisateur: req.userId });
@@ -74,6 +79,7 @@ export const updateSeance = async (req, res) => {
 
 export const deleteSeance = async (req, res) => {
   try {
+    await connectDB();
     const seance = await Seance.findOneAndDelete({ _id: req.params.id, utilisateur: req.userId });
     if (!seance) {
       return res.status(404).json({ message: "❌ Séance introuvable" });
@@ -89,6 +95,7 @@ export const deleteSeance = async (req, res) => {
 
 export const validerSeance = async (req, res) => {
   try {
+    await connectDB();
     const seance = await Seance.findOne({ _id: req.params.id, utilisateur: req.userId });
     if (!seance) {
       return res.status(404).json({ message: "❌ Séance introuvable" });

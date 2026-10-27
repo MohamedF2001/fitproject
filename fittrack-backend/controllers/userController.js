@@ -2,6 +2,7 @@ import Objectif from "../models/Objectif.js";
 import Succes from "../models/Succes.js";
 import User from "../models/User.js";
 import { checkGoals } from "../utils/goalsChecker.js";
+import connectDB from "../config/db.js";
 
 const QUESTIONS_MOTIVATION_DEFAUT = [
   "Pourquoi cet objectif est important pour toi ?",
@@ -12,6 +13,7 @@ const QUESTIONS_MOTIVATION_DEFAUT = [
 
 export const createObjectif = async (req, res) => {
   try {
+    await connectDB();
     const { type, valeurCible, dateCible, reponses } = req.body;
 
     if (!type) {
@@ -41,6 +43,7 @@ export const createObjectif = async (req, res) => {
 
 export const getObjectifs = async (req, res) => {
   try {
+    await connectDB();
     const objectifs = await Objectif.find({ utilisateur: req.userId }).populate("utilisateur");
     return res.status(200).json(objectifs);
   } catch (error) {
@@ -51,6 +54,7 @@ export const getObjectifs = async (req, res) => {
 
 export const getObjectifById = async (req, res) => {
   try {
+    await connectDB();
     const objectif = await Objectif.findOne({ _id: req.params.id, utilisateur: req.userId }).populate("utilisateur");
     if (!objectif) {
       return res.status(404).json({ message: "❌ Objectif introuvable" });
@@ -64,6 +68,7 @@ export const getObjectifById = async (req, res) => {
 
 export const updateObjectif = async (req, res) => {
   try {
+    await connectDB();
     const { type, valeurCible, statut, dateCible, reponses } = req.body;
 
     const objectif = await Objectif.findOne({ _id: req.params.id, utilisateur: req.userId });
@@ -98,6 +103,7 @@ export const updateObjectif = async (req, res) => {
 
 export const deleteObjectif = async (req, res) => {
   try {
+    await connectDB();
     const objectif = await Objectif.findOneAndDelete({ _id: req.params.id, utilisateur: req.userId });
     if (!objectif) {
       return res.status(404).json({ message: "❌ Objectif introuvable" });
@@ -115,6 +121,7 @@ export const deleteObjectif = async (req, res) => {
 
 export const getSucces = async (req, res) => {
   try {
+    await connectDB();
     const succes = await Succes.find({ utilisateur: req.userId })
       .populate("utilisateur")
       .populate("objectif");
@@ -126,6 +133,7 @@ export const getSucces = async (req, res) => {
 };
 
 export const declencherVerificationObjectifs = async (userId) => {
+  await connectDB();
   const user = await User.findById(userId);
   if (!user) return [];
   return checkGoals(user);

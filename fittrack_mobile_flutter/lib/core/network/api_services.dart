@@ -65,6 +65,17 @@ class ExercicesApiService {
 class ProgrammesApiService {
   ProgrammesApiService(this._dio);
   final Dio _dio;
+  Future<ProgrammeProposalModel> propose(ProgrammeProposalRequest input) async {
+    final response = await _dio.post(
+      '/programmes/proposition',
+      data: input.toJson(),
+      options: Options(receiveTimeout: const Duration(seconds: 100)),
+    );
+    return ProgrammeProposalModel.fromJson(
+      _map(_map(_body(response))['proposition']),
+    );
+  }
+
   Future<ProgrammeModel> create(ProgrammeInput input) async {
     final response = await _dio.post('/programmes', data: input.toJson());
     return ProgrammeModel.fromJson(_resource(_body(response), 'programme'));

@@ -26,6 +26,8 @@ class _CreateProgramPageState extends ConsumerState<CreateProgramPage> {
   final _selectedExercises = <String>{};
   String _selectedDay = weekDays.first;
   bool _saving = false;
+  bool _generating = false;
+  String? _proposalJustification;
 
   @override
   void initState() {
@@ -81,6 +83,125 @@ class _CreateProgramPageState extends ConsumerState<CreateProgramPage> {
       _selectedExercises.clear();
       _selectedExercises.addAll(day.exercices.map((e) => e.exerciceId));
     });
+  }
+
+  Future<void> _generateProposal() async {
+    final objectiveController = TextEditingController();
+    final equipmentController = TextEditingController();
+    var daysPerWeek = 3;
+    var level = 'debutant';
+
+    final request = await showDialog<ProgrammeProposalRequest>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Proposer un programme'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<int>(
+                  initialValue: daysPerWeek,
+                  decoration: const InputDecoration(labelText: 'Jours par semaine'),
+                  items: List.generate(7, (index) => index + 1)
+                      .map((count) => DropdownMenuItem(
+                            value: count,
+                            child: Text('$count jour${count > 1 ? 's' : ''}'),
+                          ))
+                      .toList(),
+                  onChanged: (value) =>
+                      setDialogState(() => daysPerWeek = value ?? 3),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: level,
+                  decoration: const InputDecoration(labelText: 'Niveau'),
+                  items: const [
+                    DropdownMenuItem(value: 'debutant', child: Text('Débutant')),
+                    DropdownMenuItem(
+                        value: 'intermediaire', child: Text('Intermédiaire')),
+                    DropdownMenuItem(value: 'avance', child: Text('Avancé')),
+                  ],
+                  onChanged: (value) =>
+                      setDialogState(() => level = value ?? 'debutant'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: objectiveController,
+                  maxLength: 500,
+                  decoration: const InputDecoration(
+                    labelText: 'Objectif (facultatif)',
+                    hintText: 'Ex. gagner en force, reprendre le sport…',
+                  ),
+                ),
+                TextField(
+                  controller: equipmentController,
+                  maxLength: 300,
+                  decoration: const InputDecoration(
+                    labelText: 'Équipement disponible (facultatif)',
+                    hintText: 'Ex. haltères, banc, poids du corps…',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Le profil et les objectifs actifs sont transmis au modèle configuré par le serveur. La proposition sera affichée ici et restera modifiable avant enregistrement.',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Annuler'),
+            ),
+            FilledButton.icon(
+              onPressed: () => Navigator.of(dialogContext).pop(
+                ProgrammeProposalRequest(
+                  joursParSemaine: daysPerWeek,
+                  niveau: level,
+                  objectif: objectiveController.text.trim(),
+                  equipement: equipmentController.text.trim(),
+                ),
+              ),
+              icon: const Icon(Icons.auto_awesome),
+              label: const Text('Générer'),
+            ),
+          ],
+        ),
+      ),
+    );
+    objectiveController.dispose();
+    equipmentController.dispose();
+    if (request == null || !mounted) return;
+
+    setState(() => _generating = true);
+    final result = await executeApi(
+      () => ref.read(programsApiProvider).propose(request),
+      ref.read(dioClientProvider),
+    );
+    if (!mounted) return;
+    setState(() => _generating = false);
+
+    if (result.isSuccess) {
+      final proposal = result.data!;
+      setState(() {
+        _name.text = proposal.nom;
+        _days
+          ..clear()
+          ..addAll(proposal.jours);
+        _selectedExercises.clear();
+        _selectedDay = proposal.jours.first.jour;
+        _proposalJustification = proposal.justification;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Proposition générée. Vérifie-la avant de l’enregistrer.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.failure!.message)),
+      );
+    }
   }
 
   Future<void> _save() async {
@@ -149,6 +270,40 @@ class _CreateProgramPageState extends ConsumerState<CreateProgramPage> {
             AppSpacing.xl,
           ),
           children: [
+            OutlinedButton.icon(
+              onPressed: _generating ? null : _generateProposal,
+              icon: _generating
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.auto_awesome),
+              label: Text(_generating
+                  ? 'Génération en cours…'
+                  : 'Me proposer un programme avec l’IA'),
+            ),
+            if (_proposalJustification != null) ...[
+              const SizedBox(height: 12),
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.auto_awesome, color: AppColors.primary),
+                        SizedBox(width: 8),
+                        Text('Proposition à vérifier',
+                            style: TextStyle(fontWeight: FontWeight.w700)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(_proposalJustification!),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 18),
             TextFormField(
               controller: _name,
               decoration: const InputDecoration(

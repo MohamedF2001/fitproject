@@ -57,6 +57,47 @@ class AppButton extends StatelessWidget {
       );
 }
 
+class AppButtonOutlined extends StatelessWidget {
+  const AppButtonOutlined({
+    required this.label,
+    required this.onPressed,
+    super.key,
+    this.secondary = false,
+    this.icon,
+  });
+  final String label;
+  final VoidCallback? onPressed;
+  final bool secondary;
+  final IconData? icon;
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: double.infinity,
+    height: 52,
+    child: OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        //backgroundColor: secondary ? AppColors.surface2 : AppColors.primary,
+        //foregroundColor: secondary ? AppColors.text : AppColors.onPrimary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+      onPressed: onPressed,
+      child: icon == null
+          ? Text(label, style: const TextStyle(fontWeight: FontWeight.w700))
+          : Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(label,
+              style: const TextStyle(fontWeight: FontWeight.w700,fontSize:
+              12)),
+          const SizedBox(width: 5),
+          Icon(icon, size: 20),
+        ],
+      ),
+    ),
+  );
+}
+
 class AppLoader extends StatelessWidget {
   const AppLoader({super.key});
   @override

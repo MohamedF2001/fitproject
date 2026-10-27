@@ -8,11 +8,48 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../shared/widgets/app_shell.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    ));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
     return AppShell(
       title: 'Accueil',
@@ -20,132 +57,132 @@ class HomePage extends ConsumerWidget {
         onPressed: () => context.go('/profile'),
         icon: const Icon(Icons.person_outline),
       ),
-      /*floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.onPrimary,
-        onPressed: () => context.go('/workouts'),
-        child: const Icon(Icons.fitness_center),
-      ),*/
-      child: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(activeProgramProvider);
-          ref.invalidate(workoutsProvider);
-          await ref.read(authProvider.notifier).refreshProfile();
-        },
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.md,
-            AppSpacing.screen,
-            100,
-          ),
-          children: [
-            Text(
-              'Bonjour ${user?.prenom ?? ''}',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Prêt à bouger ?',
-              style: TextStyle(color: AppColors.textMuted),
-            ),
-            const SizedBox(height: 20),
-            AppCard(
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    backgroundColor: AppColors.surface3,
-                    child: Icon(Icons.person, color: AppColors.primary),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      user?.nom ?? '',
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                  const StatusChip('Actif'),
-                ],
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(activeProgramProvider);
+              ref.invalidate(workoutsProvider);
+              await ref.read(authProvider.notifier).refreshProfile();
+            },
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.md,
+                AppSpacing.screen,
+                100,
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
               children: [
-                Expanded(
-                  child: _ValueCard(
-                    label: 'Poids',
-                    value: user?.poids == null ? '—' : '${user!.poids} kg',
-                  ),
+                Text(
+                  'Bonjour ${user?.prenom ?? ''}',
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ValueCard(
-                    label: 'Taille',
-                    value: user?.taille == null ? '—' : '${user!.taille} m',
-                  ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Prêt à bouger ?',
+                  style: TextStyle(color: AppColors.textMuted),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SectionTitle(
-              title: 'Programme actif',
-              action: TextButton(
-                onPressed: () => context.go('/programs'),
-                child: const Text('Voir tout'),
-              ),
-            ),
-            ref.watch(activeProgramProvider).when(
-                  loading: () =>
-                      const AppCard(child: LinearProgressIndicator()),
-                  error: (error, _) => AppError(
-                    failureMessage(error),
-                    onRetry: () => ref.invalidate(activeProgramProvider),
-                  ),
-                  data: (program) => AppCard(
-                    child: Row(
-                      children: [
-                        const Icon(Icons.bolt, color: AppColors.primary),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            program?.nom ?? 'Aucun programme actif',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                            ),
-                          ),
+                const SizedBox(height: 20),
+                AppCard(
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        backgroundColor: AppColors.surface3,
+                        child: Icon(Icons.person, color: AppColors.primary),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text(
+                          user?.nom ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
-                        if (program != null)
-                          Text(
-                            '${program.jours.length} jours',
-                            style: const TextStyle(color: AppColors.textMuted),
-                          ),
-                      ],
+                      ),
+                      const StatusChip('Actif'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ValueCard(
+                        label: 'Poids',
+                        value: user?.poids == null ? '—' : '${user!.poids} kg',
+                      ),
                     ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _ValueCard(
+                        label: 'Taille',
+                        value: user?.taille == null ? '—' : '${user!.taille} m',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SectionTitle(
+                  title: 'Programme actif',
+                  action: TextButton(
+                    onPressed: () => context.go('/programs'),
+                    child: const Text('Voir tout'),
                   ),
                 ),
-            const SizedBox(height: 16),
-            SectionTitle(title: 'Actions rapides'),
-            Row(
-              children: [
-                Expanded(
-                  child: _QuickAction(
-                    icon: Icons.search,
-                    label: 'Exercices',
-                    onTap: () => context.push('/exercises'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _QuickAction(
-                    icon: Icons.emoji_events_outlined,
-                    label: 'Succès',
-                    onTap: () => context.push('/achievements'),
-                  ),
+                ref.watch(activeProgramProvider).when(
+                      loading: () =>
+                          const AppCard(child: LinearProgressIndicator()),
+                      error: (error, _) => AppError(
+                        failureMessage(error),
+                        onRetry: () => ref.invalidate(activeProgramProvider),
+                      ),
+                      data: (program) => AppCard(
+                        child: Row(
+                          children: [
+                            const Icon(Icons.bolt, color: AppColors.primary),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                program?.nom ?? 'Aucun programme actif',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            if (program != null)
+                              Text(
+                                '${program.jours.length} jours',
+                                style: const TextStyle(color: AppColors.textMuted),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                const SizedBox(height: 16),
+                SectionTitle(title: 'Actions rapides'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _QuickAction(
+                        icon: Icons.search,
+                        label: 'Exercices',
+                        onTap: () => context.push('/exercises'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _QuickAction(
+                        icon: Icons.emoji_events_outlined,
+                        label: 'Succès',
+                        onTap: () => context.push('/achievements'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
