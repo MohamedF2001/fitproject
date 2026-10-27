@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="FitTrack - Application de suivi d'entraînement et fitness">
+  <meta name="theme-color" content="#121212">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FitTrack">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>FitTrack</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #121212;
+      overflow: hidden;
+    }
+    #pwa-install-banner {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1e1e;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      z-index: 10000;
+      align-items: center;
+      gap: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      border: 1px solid #333;
+      max-width: 90%;
+      text-align: center;
+    }
+    #pwa-install-btn {
+      background: #6200EE;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    #pwa-install-btn:hover {
+      background: #7c4dff;
+    }
+    #pwa-close-btn {
+      background: transparent;
+      color: #aaa;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+    }
+    #pwa-close-btn:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <!-- PWA Install Prompt Banner -->
+  <div id="pwa-install-banner">
+    <span id="pwa-text">📱 Installez FitTrack sur votre écran d'accueil !</span>
+    <button id="pwa-install-btn">Installer</button>
+    <button id="pwa-close-btn">✕</button>
+  </div>
+
+  <script>
+    let deferredPrompt;
+    const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    window.addEventListener('load', () => {
+      if (!isInStandaloneMode) {
+        const banner = document.getElementById('pwa-install-banner');
+        const textSpan = document.getElementById('pwa-text');
+        const installBtn = document.getElementById('pwa-install-btn');
+
+        if (isIOS) {
+          textSpan.innerHTML = "📱 Pour installer FitTrack : Appuyez sur <b>Partager</b> ⎋ puis <b>Sur l'écran d'accueil</b>.";
+          installBtn.style.display = 'none';
+          if (banner) banner.style.display = 'flex';
+        } else {
+          window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (banner) banner.style.display = 'flex';
+          });
+        }
+      }
+    });
+
+    document.getElementById('pwa-install-btn')?.addEventListener('click', async () => {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.style.display = 'none';
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      }
+    });
+
+    document.getElementById('pwa-close-btn')?.addEventListener('click', () => {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.style.display = 'none';
+    });
+  </script>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

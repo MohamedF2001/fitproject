@@ -24,12 +24,23 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.4.13
+  flutter_launcher_icons: ^0.14.2
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
   freezed: ^2.5.7
   json_serializable: ^6.9.2
   retrofit_generator: ^9.1.5
+
+flutter_launcher_icons:
+  image_path: "assets/images/logofit.jpg"
+  android: true
+  ios: true
+  web:
+    generate: true
+    image_path: "assets/images/logofit.jpg"
+    background_color: "#121212"
+    theme_color: "#121212"
 
 flutter:
   uses-material-design: true
