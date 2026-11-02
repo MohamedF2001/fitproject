@@ -1,6 +1,6 @@
 # Fiche technique — FitTrack
 
-> **État du dépôt au 25 octobre 2026**  
+> **État du dépôt au 30 octobre 2026**
 > Analyse statique des sources et configurations présentes à la racine de `FitProject`. Cette fiche décrit l’implémentation observée ; elle ne certifie ni l’exécution en production, ni la réussite des builds ou des tests.
 
 ## 1. Présentation
@@ -34,7 +34,7 @@ API Node.js / Express → routes → middleware JWT → contrôleurs → modèle
                                                     MongoDB (MONGO_URI)
 ```
 
-L’API est configurée pour fonctionner comme serveur Node local et pour exporter l’application Express comme handler serverless Vercel. Le frontend utilise une URL configurable via `API_BASE_URL`, avec une URL Vercel de secours définie dans `lib/main.dart`.
+L’API exporte l’application Express et contient une configuration de déploiement Vercel. Le serveur appelle aussi `app.listen()` sans condition ; l’adéquation de cette double configuration avec le cycle serverless doit être vérifiée en déploiement. La connexion MongoDB est lancée sans être attendue avant `app.listen()`, ce qui peut créer une course au démarrage ou rendre les premières requêtes dépendantes de l’état de connexion. Le frontend utilise une URL configurable via `API_BASE_URL`, avec `https://fittrack-backend-murex.vercel.app/api` comme URL de secours dans `lib/main.dart`.
 
 ### Application mobile
 
@@ -169,11 +169,10 @@ Variables d’environnement référencées par le code :
 - `MONGO_URI`,
 - `JWT_SECRET`,
 - `JWT_EXPIRES_IN`,
-- `NODE_ENV` (contrôle le lancement du listener local),
 - `GEMINI_API_KEY` (clé privée côté serveur),
-- `GEMINI_MODEL` (défaut `gemini-3.8-flash`).
+- `GEMINI_MODEL` (défaut effectif dans le code : `gemini-3.5-flash-lite`). La valeur d’exemple de `.env.example` est `gemini-2.5-flash`.
 
-La génération appelle l’API REST Gemini depuis le backend. Le profil, les objectifs actifs et le catalogue sont transmis à Google pour produire la proposition ; la clé API reste côté backend et ne doit jamais être embarquée dans l’application. Gemini impose ses propres quotas, conditions et limites selon la clé et le modèle : la clé API ne signifie pas un usage littéralement illimité.
+La génération appelle l’API REST Gemini depuis le backend. Le profil, les objectifs actifs et le catalogue d’exercices sont transmis à Google pour produire la proposition ; la clé API reste côté backend et ne doit jamais être embarquée dans l’application. Sans clé ou en cas d’échec des appels Gemini, le backend utilise un générateur local déterministe. Gemini impose ses propres quotas, conditions et limites selon la clé et le modèle : la clé API ne signifie pas un usage littéralement illimité.
 
 Démarrage local depuis `fittrack-backend/` :
 
@@ -224,7 +223,7 @@ Un fichier `fittrack_mobile_flutter/.env` existe dans le workspace mais n’est 
 - Pas de limitation de débit, de politique de verrouillage de compte ou de validation centralisée de schémas de requête visible dans les routes examinées.
 - Les erreurs internes sont parfois renvoyées au client ; limiter les détails en production et privilégier une journalisation serveur contrôlée.
 - La configuration JWT dépend de `JWT_SECRET` et de `JWT_EXPIRES_IN`. Valider explicitement la présence des variables au démarrage.
-- Une configuration de déploiement Vercel est présente ; confirmer que le driver MongoDB et l’initialisation de connexion sont adaptés au cycle serverless réellement utilisé.
+- Une configuration de déploiement Vercel est présente, mais `server.js` ouvre aussi un listener avec `app.listen()` et ne bloque pas l’écoute jusqu’à la connexion MongoDB. Vérifier le comportement réel de démarrage, de réutilisation et de connexion sur la cible serverless avant de considérer ce déploiement comme validé.
 - Les fichiers d’environnement ne doivent pas être intégrés aux commits. `fittrack-backend/.gitignore` contient des règles `.env`, mais cela ne retire pas de l’index le fichier déjà suivi.
 
 ## 10. Limites et dette technique
@@ -262,4 +261,4 @@ Un fichier `fittrack_mobile_flutter/.env` existe dans le workspace mais n’est 
 - `fittrack_mobile_flutter/assets/exercises/NOTICE.md`.
 - `openGym/README.md` et `openGym/LICENSE` pour identifier le périmètre et la licence du projet tiers.
 
-> **Note de fiabilité :** cette fiche est une lecture du code présent dans le workspace à la date indiquée. Les fichiers Flutter `auth_pages.dart` et `home_page.dart` avaient des modifications locales non commitées pendant l’analyse ; leur contenu n’a pas été modifié dans le cadre de cette documentation.
+> **Note de fiabilité :** cette fiche est une lecture statique du code présent dans le workspace à la date indiquée. Les fichiers d’environnement n’ont pas été ouverts ni reproduits. `git ls-files` indique toutefois que `fittrack-backend/.env` est suivi par Git ; ses valeurs réelles n’ont pas été vérifiées dans le cadre de cette analyse. Aucun build, test automatisé, appel API ou contrôle de déploiement n’a été exécuté. Les constats décrivent le code et les configurations, pas un fonctionnement validé en production.

@@ -1,3 +1,18 @@
+// Remove conflicting ANDROID_PREFS_ROOT env variable to satisfy new AGP check
+try {
+    val processEnvironment = Class.forName("java.lang.ProcessEnvironment")
+    listOf("theEnvironment", "theCaseInsensitiveEnvironment").forEach { fieldName ->
+        try {
+            val field = processEnvironment.getDeclaredField(fieldName)
+            field.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            val map = field.get(null) as MutableMap<String, String>
+            map.remove("ANDROID_PREFS_ROOT")
+        } catch (_: Exception) {}
+    }
+} catch (_: Exception) {}
+
+
 allprojects {
     repositories {
         google()

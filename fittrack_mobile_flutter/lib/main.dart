@@ -15,7 +15,7 @@ Future<void> main() async {
   await dotenv.load(fileName: '.env', isOptional: true);
   await initializeDateFormatting('fr');
   final storage = await LocalStorage.init();
-  final baseUrl = dotenv.maybeGet(AppConstants.apiBaseUrl) ??
+    final baseUrl = dotenv.maybeGet(AppConstants.apiBaseUrl) ??
       //'http://192.168.0.189:3000/api';
       'https://fittrack-backend-murex.vercel.app/api';
   runApp(

@@ -131,7 +131,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Bienvenue ! Complète tes informations pour personnaliser ton expérience Kinetic Fit.',
+                      'Bienvenue ! Complète tes informations pour personnaliser ton expérience Fittrack.',
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                   ),
