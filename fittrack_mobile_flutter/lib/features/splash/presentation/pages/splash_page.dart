@@ -13,28 +13,32 @@ class SplashPage extends ConsumerStatefulWidget {
 }
 
 class _SplashPageState extends ConsumerState<SplashPage> {
-  Timer? _navigationTimer;
   bool _hasNavigated = false;
 
   @override
   void initState() {
     super.initState();
-    // Afficher le GIF pendant 3 secondes puis naviguer
-    _navigationTimer = Timer(const Duration(seconds: 8), () {
-      _navigateToNext();
-    });
+    _checkAuthAndNavigate();
   }
 
-  void _navigateToNext() {
-    if (_hasNavigated || !mounted) return;
-    _hasNavigated = true;
-    _navigationTimer?.cancel();
+  Future<void> _checkAuthAndNavigate() async {
+    final minDelay = Future.delayed(const Duration(seconds: 2));
 
     final auth = ref.read(authProvider);
+    if (auth.isAuthenticated) {
+      // Toujours vérifier auprès du serveur si l'utilisateur est réellement connecté
+      await ref.read(authProvider.notifier).refreshProfile();
+    }
+
+    await minDelay;
+    if (_hasNavigated || !mounted) return;
+    _hasNavigated = true;
+
+    final updatedAuth = ref.read(authProvider);
     final storage = ref.read(storageProvider);
 
-    if (auth.isAuthenticated) {
-      if (auth.user?.isComplete == true) {
+    if (updatedAuth.isAuthenticated) {
+      if (updatedAuth.user?.isComplete == true) {
         context.go('/home');
       } else {
         context.go('/complete-profile');
@@ -44,12 +48,6 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     } else {
       context.go('/login');
     }
-  }
-
-  @override
-  void dispose() {
-    _navigationTimer?.cancel();
-    super.dispose();
   }
 
   @override

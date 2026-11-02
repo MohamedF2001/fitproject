@@ -8,7 +8,11 @@ import '../storage/local_storage.dart';
 
 final storageProvider = Provider<LocalStorage>((ref) => LocalStorage.memory());
 final dioClientProvider = Provider<DioClient>(
-  (ref) => DioClient(ref.read(storageProvider), 'https://fittrack-backend-murex.vercel.app/api'),
+  (ref) => DioClient(
+    ref.read(storageProvider),
+    'https://fittrack-backend-murex.vercel.app/api',
+    onUnauthorized: () => ref.read(authProvider.notifier).logout(),
+  ),
 );
 final authApiProvider = Provider(
   (ref) => AuthApiService(ref.read(dioClientProvider).dio),
