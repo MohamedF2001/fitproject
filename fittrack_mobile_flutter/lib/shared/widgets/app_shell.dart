@@ -1,16 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/providers/app_providers.dart';
 import '../../core/theme/app_theme.dart';
 
-class AppPersistentShell extends StatelessWidget {
+class AppPersistentShell extends ConsumerStatefulWidget {
   const AppPersistentShell(this.navigationShell, {super.key});
 
   final StatefulNavigationShell navigationShell;
 
   @override
+  ConsumerState<AppPersistentShell> createState() => _AppPersistentShellState();
+}
+
+class _AppPersistentShellState extends ConsumerState<AppPersistentShell> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final auth = ref.read(authProvider);
+        if (auth.isAuthenticated) {
+          ref.read(authProvider.notifier).refreshProfile();
+        }
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: widget.navigationShell,
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           labelTextStyle: WidgetStateProperty.resolveWith((states) {
@@ -29,11 +49,11 @@ class AppPersistentShell extends StatelessWidget {
           }),
         ),
         child: NavigationBar(
-          selectedIndex: navigationShell.currentIndex,
+          selectedIndex: widget.navigationShell.currentIndex,
           onDestinationSelected: (index) {
-            navigationShell.goBranch(
+            widget.navigationShell.goBranch(
               index,
-              initialLocation: index == navigationShell.currentIndex,
+              initialLocation: index == widget.navigationShell.currentIndex,
             );
           },
           destinations: const [

@@ -4,8 +4,9 @@ import '../errors/failure.dart';
 import '../storage/local_storage.dart';
 
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(this.storage);
+  AuthInterceptor(this.storage, {this.onUnauthorized});
   final LocalStorage storage;
+  final void Function()? onUnauthorized;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -15,10 +16,19 @@ class AuthInterceptor extends Interceptor {
     }
     handler.next(options);
   }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (err.response?.statusCode == 401) {
+      storage.clearSession();
+      onUnauthorized?.call();
+    }
+    handler.next(err);
+  }
 }
 
 class DioClient {
-  DioClient(this.storage, String baseUrl)
+  DioClient(this.storage, String baseUrl, {void Function()? onUnauthorized})
       : dio = Dio(
           BaseOptions(
             baseUrl: baseUrl,
@@ -30,7 +40,9 @@ class DioClient {
             },
           ),
         ) {
-    dio.interceptors.add(AuthInterceptor(storage));
+    dio.interceptors.add(
+      AuthInterceptor(storage, onUnauthorized: onUnauthorized),
+    );
   }
 
   final Dio dio;

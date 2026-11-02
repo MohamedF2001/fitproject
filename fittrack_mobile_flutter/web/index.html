@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="FitTrack - Application de suivi d'entraînement et fitness">
-  <meta name="theme-color" content="#121212">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0d0f12">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,113 +18,544 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>FitTrack</title>
+  <title>FitTrack - Installation Obligatoire</title>
   <link rel="manifest" href="manifest.json">
 
+  <!-- Google Fonts Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    html, body {
+    :root {
+      --bg-dark: #0d0f12;
+      --card-bg: rgba(22, 27, 34, 0.85);
+      --card-border: rgba(0, 240, 255, 0.2);
+      --neon-cyan: #00F0FF;
+      --neon-lime: #39FF14;
+      --neon-purple: #8A2BE2;
+      --text-main: #FFFFFF;
+      --text-muted: #9AA0A6;
+      --gradient-volt: linear-gradient(135deg, #00F0FF 0%, #39FF14 100%);
+      --glow-cyan: 0 0 25px rgba(0, 240, 255, 0.45);
+      --glow-lime: 0 0 25px rgba(57, 255, 20, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
       width: 100%;
       height: 100%;
-      background-color: #121212;
-      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
-    #pwa-install-banner {
+
+    /* Fullscreen PWA Lock Overlay */
+    #pwa-lock-screen {
       display: none;
       position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1e1e1e;
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-      z-index: 10000;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      background: radial-gradient(circle at 50% 15%, rgba(0, 240, 255, 0.12) 0%, rgba(13, 15, 18, 0.98) 70%);
+      z-index: 999999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 28px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), var(--glow-cyan);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeInScale {
+      0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Logo Badge */
+    .app-logo-wrapper {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      margin-bottom: 20px;
+    }
+
+    .app-logo-pulse {
+      position: absolute;
+      inset: -6px;
+      border-radius: 26px;
+      background: var(--gradient-volt);
+      filter: blur(12px);
+      opacity: 0.6;
+      animation: pulseGlow 3s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { opacity: 0.35; transform: scale(0.96); }
+      100% { opacity: 0.75; transform: scale(1.05); }
+    }
+
+    .app-logo-img {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      border-radius: 22px;
+      object-fit: cover;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Titles and badges */
+    .badge-pwa {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      color: var(--neon-cyan);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--neon-lime);
+      box-shadow: 0 0 8px var(--neon-lime);
+      animation: blink 1.4s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 10px;
+      background: linear-gradient(180deg, #FFFFFF 30%, #A5B4FC 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 24px;
+      font-weight: 400;
+    }
+
+    /* Kinetic Volt Button */
+    .btn-install {
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--gradient-volt);
+      color: #0d0f12;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--glow-cyan), 0 10px 25px rgba(0, 240, 255, 0.3);
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-install:active {
+      transform: scale(0.97);
+      box-shadow: 0 4px 15px rgba(0, 240, 255, 0.4);
+    }
+
+    .btn-install svg {
+      width: 20px;
+      height: 20px;
+      fill: #0d0f12;
+    }
+
+    /* iOS Guide Box */
+    .ios-guide-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 18px 16px;
+      width: 100%;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .ios-step {
+      display: flex;
       align-items: center;
       gap: 12px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       font-size: 13px;
-      border: 1px solid #333;
-      max-width: 90%;
-      text-align: center;
+      color: #e2e8f0;
     }
-    #pwa-install-btn {
-      background: #6200EE;
-      color: white;
-      border: none;
-      padding: 6px 12px;
+
+    .ios-step-num {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .ios-icon-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 2px 8px;
       border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      white-space: nowrap;
-    }
-    #pwa-install-btn:hover {
-      background: #7c4dff;
-    }
-    #pwa-close-btn {
-      background: transparent;
-      color: #aaa;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px;
-    }
-    #pwa-close-btn:hover {
+      font-weight: 600;
       color: #fff;
+      margin: 0 4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .arrow-pointer-ios {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--neon-cyan);
+      font-size: 11px;
+      font-weight: 600;
+      animation: floatDown 1.5s infinite ease-in-out;
+    }
+
+    @keyframes floatDown {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    /* Success / Installed State */
+    .success-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeInScale 0.5s ease;
+    }
+
+    .success-icon-wrapper {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(57, 255, 20, 0.15);
+      border: 2px solid var(--neon-lime);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: var(--glow-lime);
+    }
+
+    .success-icon-wrapper svg {
+      width: 36px;
+      height: 36px;
+      fill: var(--neon-lime);
+    }
+
+    .features-list {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .feature-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .feature-item svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--neon-cyan);
     }
   </style>
 </head>
 <body>
-  <!-- PWA Install Prompt Banner -->
-  <div id="pwa-install-banner">
-    <span id="pwa-text">📱 Installez FitTrack sur votre écran d'accueil !</span>
-    <button id="pwa-install-btn">Installer</button>
-    <button id="pwa-close-btn">✕</button>
+
+  <!-- Fullscreen Mandatory Installation Lock Screen -->
+  <div id="pwa-lock-screen">
+    <div class="glass-card">
+
+      <!-- Default installation prompt block -->
+      <div id="prompt-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <div class="app-logo-wrapper">
+          <div class="app-logo-pulse"></div>
+          <img class="app-logo-img" src="icons/Icon-192.png" alt="FitTrack Logo" onerror="this.src='favicon.png'">
+        </div>
+
+        <div class="badge-pwa">
+          <span class="badge-dot"></span>
+          Application Dédiée
+        </div>
+
+        <h1 class="title">FitTrack Mobile</h1>
+        <p class="subtitle">
+          Pour une expérience optimale sans latence, FitTrack doit être <b>ajoutée à votre écran d'accueil</b> avant de pouvoir être lancée.
+        </p>
+
+        <!-- Android / Chrome Native Button -->
+        <div id="android-install-area" style="width: 100%; display: none;">
+          <button id="pwa-install-btn" class="btn-install">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            Ajouter à l'écran d'accueil
+          </button>
+        </div>
+
+        <!-- iOS Safari Instructions -->
+        <div id="ios-install-area" style="width: 100%; display: none;">
+          <div class="ios-guide-box">
+            <div class="ios-step">
+              <span class="ios-step-num">1</span>
+              <span>Touchez le bouton <b>Partager</b> <span class="ios-icon-badge">⎋</span> en bas de Safari.</span>
+            </div>
+            <div class="ios-step">
+              <span class="ios-step-num">2</span>
+              <span>Défilez vers le bas et sélectionnez <span class="ios-icon-badge">Sur l'écran d'accueil ⊞</span>.</span>
+            </div>
+            <div class="ios-step">
+              <span class="ios-step-num">3</span>
+              <span>Appuyez sur <b>Ajouter</b> en haut à droite.</span>
+            </div>
+          </div>
+          <div class="arrow-pointer-ios">
+            <span>👇 Touchez Partager ci-dessous</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+          </div>
+        </div>
+
+        <!-- Desktop / Other browsers Fallback -->
+        <div id="generic-install-area" style="width: 100%; display: none;">
+          <div class="ios-guide-box" style="text-align: center;">
+            <p style="font-size: 13px; color: #e2e8f0;">
+              Ouvrez le menu de votre navigateur (les <b>3 points ⋮</b> ou l'icône dans la barre d'adresse) et cliquez sur <b>« Installer l'application FitTrack »</b>.
+            </p>
+          </div>
+        </div>
+
+        <div class="features-list">
+          <div class="feature-item">
+            <svg viewBox="0 0 24 24"><path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.18 1.75-.48 2.54l2.6 1.53c.56-1.24.88-2.62.88-4.07 0-5.18-3.95-9.45-9-9.95zM12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05c-5.06.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 3.31 0 6.24-1.61 8.01-4.09l-2.49-1.46C16.29 18.04 14.28 19 12 19z"/></svg>
+            <span>Plein Écran</span>
+          </div>
+          <div class="feature-item">
+            <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+            <span>Performance</span>
+          </div>
+          <div class="feature-item">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            <span>Sécurisé</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Installation Finished / Success State -->
+      <div id="success-container" class="success-container">
+        <div class="success-icon-wrapper">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+        <h2 class="title" style="font-size: 20px;">Installation Réussie !</h2>
+        <p class="subtitle" style="margin-bottom: 20px;">
+          FitTrack est maintenant installée sur votre téléphone.<br><br>
+          <strong style="color: var(--neon-cyan);">Ouvrez l'icône FitTrack sur votre écran d'accueil</strong> pour débuter votre entraînement.
+        </p>
+        <button id="pwa-close-tab-btn" class="btn-install" style="background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: none;">
+          Quitter le navigateur
+        </button>
+      </div>
+
+    </div>
   </div>
 
   <script>
-    let deferredPrompt;
-    const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    (function() {
+      let deferredPrompt = null;
+      const ua = window.navigator.userAgent.toLowerCase();
+      const isIOS = /iphone|ipad|ipod/.test(ua) && !window.MSStream;
 
-    window.addEventListener('load', () => {
-      if (!isInStandaloneMode) {
-        const banner = document.getElementById('pwa-install-banner');
-        const textSpan = document.getElementById('pwa-text');
-        const installBtn = document.getElementById('pwa-install-btn');
+      function isStandalone() {
+        return (
+          window.matchMedia('(display-mode: standalone)').matches ||
+          window.matchMedia('(display-mode: fullscreen)').matches ||
+          window.matchMedia('(display-mode: minimal-ui)').matches ||
+          window.navigator.standalone === true ||
+          document.referrer.includes('android-app://')
+        );
+      }
+
+      function loadFlutterApp() {
+        const lockScreen = document.getElementById('pwa-lock-screen');
+        if (lockScreen) {
+          lockScreen.style.display = 'none';
+        }
+        // Load Flutter bootstrap dynamically only when running in standalone mode
+        const script = document.createElement('script');
+        script.src = 'flutter_bootstrap.js';
+        script.async = true;
+        document.body.appendChild(script);
+      }
+
+      function showLockScreen() {
+        const lockScreen = document.getElementById('pwa-lock-screen');
+        const androidArea = document.getElementById('android-install-area');
+        const iosArea = document.getElementById('ios-install-area');
+        const genericArea = document.getElementById('generic-install-area');
+
+        if (lockScreen) lockScreen.style.display = 'flex';
 
         if (isIOS) {
-          textSpan.innerHTML = "📱 Pour installer FitTrack : Appuyez sur <b>Partager</b> ⎋ puis <b>Sur l'écran d'accueil</b>.";
-          installBtn.style.display = 'none';
-          if (banner) banner.style.display = 'flex';
+          if (iosArea) iosArea.style.display = 'block';
         } else {
+          // Listen for native PWA prompt
           window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            if (banner) banner.style.display = 'flex';
+            if (androidArea) androidArea.style.display = 'block';
           });
+
+          // If prompt doesn't fire within 800ms, fallback to showing install button anyway or generic instructions
+          setTimeout(() => {
+            if (deferredPrompt) {
+              if (androidArea) androidArea.style.display = 'block';
+            } else {
+              if (androidArea) androidArea.style.display = 'block';
+              if (genericArea) genericArea.style.display = 'block';
+            }
+          }, 800);
         }
       }
-    });
 
-    document.getElementById('pwa-install-btn')?.addEventListener('click', async () => {
-      const banner = document.getElementById('pwa-install-banner');
-      if (banner) banner.style.display = 'none';
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
+      function showSuccessState() {
+        const promptContainer = document.getElementById('prompt-container');
+        const successContainer = document.getElementById('success-container');
+        if (promptContainer) promptContainer.style.display = 'none';
+        if (successContainer) successContainer.style.display = 'flex';
+
+        // Attempt closing browser window / tab
+        setTimeout(() => {
+          try {
+            window.close();
+          } catch (e) {
+            console.log('window.close() not permitted by browser policy:', e);
+          }
+        }, 1200);
       }
-    });
 
-    document.getElementById('pwa-close-btn')?.addEventListener('click', () => {
-      const banner = document.getElementById('pwa-install-banner');
-      if (banner) banner.style.display = 'none';
-    });
+      // Check display mode
+      if (isStandalone()) {
+        loadFlutterApp();
+      } else {
+        showLockScreen();
+
+        // Listen for installation completion
+        window.addEventListener('appinstalled', () => {
+          showSuccessState();
+        });
+
+        // Setup button handlers
+        document.addEventListener('DOMContentLoaded', () => {
+          const installBtn = document.getElementById('pwa-install-btn');
+          const closeTabBtn = document.getElementById('pwa-close-tab-btn');
+
+          if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+              if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                  showSuccessState();
+                }
+                deferredPrompt = null;
+              } else {
+                alert("Pour ajouter à l'écran d'accueil : Ouvrez le menu de votre navigateur (⋮) puis cliquez sur 'Ajouter à l'écran d'accueil' ou 'Installer l'application'.");
+              }
+            });
+          }
+
+          if (closeTabBtn) {
+            closeTabBtn.addEventListener('click', () => {
+              try {
+                window.close();
+              } catch (e) {}
+              window.location.href = "about:blank";
+            });
+          }
+        });
+      }
+
+      // If user switches to standalone mode dynamically
+      window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => {
+        if (e.matches) {
+          loadFlutterApp();
+        }
+      });
+    })();
   </script>
-
-  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

@@ -22,7 +22,13 @@ Future<void> main() async {
     ProviderScope(
       overrides: [
         storageProvider.overrideWithValue(storage),
-        dioClientProvider.overrideWithValue(DioClient(storage, baseUrl)),
+        dioClientProvider.overrideWith(
+          (ref) => DioClient(
+            storage,
+            baseUrl,
+            onUnauthorized: () => ref.read(authProvider.notifier).logout(),
+          ),
+        ),
       ],
       child: const FitTrackApp(),
     ),
